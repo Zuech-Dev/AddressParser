@@ -1,5 +1,6 @@
 import Testing
-@testable import UsAddressParser
+
+@testable import AddressParser
 
 @MainActor let eMain = AddressComponents(
     streetNumber: "123",
@@ -85,6 +86,19 @@ import Testing
     zipcode: "27278"
 )
 
+//88 Colin P Kelly Jr St, San Francisco, CA 94107
+@MainActor let github = AddressComponents(
+    streetNumber: "88",
+    streetName: "Colin P Kelly Jr",
+    streetSuffix: "St",
+    direction: "",
+    unitType: "",
+    unitNumber: "",
+    city: "San Franciso",
+    state: "CA",
+    zipcode: "94107"
+)
+
 @MainActor let addresses = [
     eMain,
     eAllen,
@@ -129,6 +143,10 @@ import Testing
 
 @MainActor @Test func parseMlk() {
     printAndTest(mlk)
+}
+
+@MainActor @Test func parseGithub() {
+    printAndTest(github)
 }
 
 func printAndTest(_ address: AddressComponents) {
