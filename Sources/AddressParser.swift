@@ -7,7 +7,7 @@
 
 import Foundation
 
-class AddressParser {
+public class AddressParser {
     private static let streetSuffixPatterns = [
         "ALLEE": "ALY",
         "ALLEY": "ALY",
@@ -540,7 +540,7 @@ class AddressParser {
         }
         
         let simpleStPattern = #"^(?<streetNumber>\d+[-?\s?\w])\s+(?<streetName>[A-Za-z\s]+)\s+(?<streetSuffix>\w+\s?\w?),\s+(?<city>[A-Za-z\s]+){1,5},\s+(?<state>[A-Z]{2})\s+(?<zip>\d{5})$"#
-        print(simpleStPattern)
+//        print(simpleStPattern)
         if let simpleStRegex = try? NSRegularExpression(
             pattern: simpleStPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
@@ -551,7 +551,7 @@ class AddressParser {
         // 2) Street address with optional unit: "3605 Maldon Way, Apt 25, High Point, NC 27260"
         // This pattern tries to handle direction, suffix, and an optional unit.
         let streetPattern = #"^(?<streetNumber>\d+[-?\s?\w])\s+(?<streetName>[A-Za-z\s]+){1,8}\s+(?<streetSuffix>\w+\s?\w?)(?<trailingDir>\#(directionRegex))?,(?:\s+(?<unitType>[A-Za-z\s]+)\s*(?<unitNumber>\w+))?,?\s+(?<city>[A-Za-z\s]+),\s+(?<state>[A-Z]{2})\s+(?<zip>\d{5})$"#
-        print(streetPattern)
+//        print(streetPattern)
         if let streetRegex = try? NSRegularExpression(
             pattern: streetPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
@@ -562,9 +562,9 @@ class AddressParser {
         return list
     }()
 
-    static func parseAddress(_ address: String) -> AddressComponents? {
+    public static func parseAddress(_ address: String) -> AddressComponents? {
         for regex in addressRegexList {
-            print(regex.pattern)
+//            print(regex.pattern)
             let range = NSRange(
                 address.startIndex..<address.endIndex, in: address)
             if let match = regex.firstMatch(
