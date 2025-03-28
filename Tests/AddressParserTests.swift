@@ -106,9 +106,8 @@ import Testing
     broadstone,
     way,
     wendover,
-    mlk
+    mlk,
 ]
-
 
 @MainActor @Test func parseListOfAddresses() async throws {
     // Write your test here and use APIs like `#expect(...)` to check expected conditions.
@@ -151,33 +150,31 @@ import Testing
 
 func printAndTest(_ address: AddressComponents) {
     print("Original: \(address.ToString())")
-    
+
     let parsed = AddressParser.parseAddress(address.ToString())
-    
-    if (parsed != nil) {
-        print("  Number:      \(parsed!.streetNumber)")
-        print("  Name:        \(parsed!.streetName)")
-        print("  Suffix:      \(parsed!.streetSuffix)")
-        print("  Direction:   \(parsed!.direction)")
-        print("  Unit Type:   \(parsed!.unitType)")
-        print("  Unit Number: \(parsed!.unitNumber)")
-        print("  City:        \(parsed!.city)")
-        print("  State:       \(parsed!.state)")
-        print("  ZIP:         \(parsed!.zipcode)")
-        
-        #expect(address.streetNumber == parsed?.streetNumber)
-        #expect(address.streetName == parsed?.streetName)
-        #expect(address.streetSuffix == parsed?.streetSuffix)
-        #expect(address.direction == parsed?.direction)
-        #expect(address.unitType == parsed?.unitType)
-        #expect(address.unitNumber == parsed?.unitNumber)
-        #expect(address.city == parsed?.city)
-        #expect(address.state == parsed?.state)
-        #expect(address.zipcode == parsed?.zipcode)
-    }
-    
+
+    print("  Number:      \(parsed.streetNumber)")
+    print("  Name:        \(parsed.streetName)")
+    print("  Suffix:      \(parsed.streetSuffix)")
+    print("  Direction:   \(parsed.direction)")
+    print("  Unit Type:   \(parsed.unitType)")
+    print("  Unit Number: \(parsed.unitNumber)")
+    print("  City:        \(parsed.city)")
+    print("  State:       \(parsed.state)")
+    print("  ZIP:         \(parsed.zipcode)")
+
+    #expect(address.streetNumber == parsed.streetNumber)
+    #expect(address.streetName == parsed.streetName)
+    #expect(address.streetSuffix == parsed.streetSuffix)
+    #expect(address.direction == parsed.direction)
+    #expect(address.unitType == parsed.unitType)
+    #expect(address.unitNumber == parsed.unitNumber)
+    #expect(address.city == parsed.city)
+    #expect(address.state == parsed.state)
+    #expect(address.zipcode == parsed.zipcode)
+
     #expect(address == parsed)
-    
+
     print("")
 }
 

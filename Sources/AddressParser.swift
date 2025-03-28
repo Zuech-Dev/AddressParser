@@ -562,7 +562,7 @@ public class AddressParser {
         return list
     }()
 
-    public static func parseAddress(_ address: String) -> AddressComponents? {
+    public static func parseAddress(_ address: String) -> AddressComponents {
         for regex in addressRegexList {
 //            print(regex.pattern)
             let range = NSRange(
@@ -574,7 +574,7 @@ public class AddressParser {
             }
             continue
         }
-        return nil
+        return AddressComponents()
     }
 
     private static func extractComponents(

@@ -17,6 +17,18 @@ public struct AddressComponents : Equatable, Codable {
     public var city: String
     public var state: String
     public var zipcode: String
+    
+    public init() {
+        self.streetNumber = ""
+        self.streetName = ""
+        self.streetSuffix = ""
+        self.direction = ""
+        self.unitType = ""
+        self.unitNumber = ""
+        self.city = ""
+        self.state = ""
+        self.zipcode = ""
+    }
 
     public init(
         streetNumber: String,
