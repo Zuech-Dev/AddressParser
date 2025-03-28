@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AddressComponents : Equatable {
+public struct AddressComponents : Equatable, Codable {
     public var streetNumber: String
     public var streetName: String
     public var streetSuffix: String

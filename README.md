@@ -1,5 +1,9 @@
 #  Address Parser
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FZuech-Dev%2FAddressParser%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/Zuech-Dev/AddressParser)
+
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FZuech-Dev%2FAddressParser%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/Zuech-Dev/AddressParser)
+
 This is library is for parseing physical mailing addresses into address components when:
 1. Internet connection is unavailable
 2. New addresses not yet listed in online services (Google Places Autocomplete)
