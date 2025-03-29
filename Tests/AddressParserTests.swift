@@ -19,8 +19,8 @@ import Testing
     streetName: "E Allen",
     streetSuffix: "St",
     direction: "",
-    unitType: "",
-    unitNumber: "",
+    unitType: "Apt",
+    unitNumber: "7",
     city: "Boise",
     state: "ID",
     zipcode: "83709"
@@ -88,7 +88,7 @@ import Testing
 
 //88 Colin P Kelly Jr St, San Francisco, CA 94107
 @MainActor let github = AddressComponents(
-    streetNumber: "88",
+    streetNumber: "88-A",
     streetName: "Colin P Kelly Jr",
     streetSuffix: "St",
     direction: "",
@@ -148,21 +148,9 @@ import Testing
     printAndTest(github)
 }
 
-func printAndTest(_ address: AddressComponents) {
-    print("Original: \(address.ToString())")
-
-    let parsed = AddressParser.parseAddress(address.ToString())
-
-    print("  Number:      \(parsed.streetNumber)")
-    print("  Name:        \(parsed.streetName)")
-    print("  Suffix:      \(parsed.streetSuffix)")
-    print("  Direction:   \(parsed.direction)")
-    print("  Unit Type:   \(parsed.unitType)")
-    print("  Unit Number: \(parsed.unitNumber)")
-    print("  City:        \(parsed.city)")
-    print("  State:       \(parsed.state)")
-    print("  ZIP:         \(parsed.zipcode)")
-
+@MainActor func printAndTest(_ address: AddressComponents) {
+    let parsed = printAndTest(address.toString())
+    
     #expect(address.streetNumber == parsed.streetNumber)
     #expect(address.streetName == parsed.streetName)
     #expect(address.streetSuffix == parsed.streetSuffix)
@@ -172,10 +160,31 @@ func printAndTest(_ address: AddressComponents) {
     #expect(address.city == parsed.city)
     #expect(address.state == parsed.state)
     #expect(address.zipcode == parsed.zipcode)
-
+    
     #expect(address == parsed)
+}
 
+@MainActor func printAndTest(_ address: String) -> AddressComponents {
+    print("Original: \(address)")
+    
+    let parsed = AddressParser.parseAddress(address)
+    
+    print("  Number:      \(parsed.streetNumber)")
+    print("  Name:        \(parsed.streetName)")
+    print("  Suffix:      \(parsed.streetSuffix)")
+    print("  Direction:   \(parsed.direction)")
+    print("  Unit Type:   \(parsed.unitType)")
+    print("  Unit Number: \(parsed.unitNumber)")
+    print("  City:        \(parsed.city)")
+    print("  State:       \(parsed.state)")
+    print("  Zipcode:     \(parsed.zipcode)")
+    print("  Parsed:      \(parsed.toString())")
     print("")
+    
+    #expect(address == parsed.toString())
+    
+    
+    return parsed
 }
 
 // BREAK THE STRING INTO LARGER COMPONENTS FIRST

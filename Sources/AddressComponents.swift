@@ -52,7 +52,7 @@ public struct AddressComponents : Equatable, Codable {
         self.zipcode = zipcode
     }
 
-    public func ToString() -> String {
+    public func toString() -> String {
         let streetAddress = "\(streetNumber) \(direction.isEmpty ? "" : "\(direction) ")\(streetName) \(streetSuffix)".trimmingCharacters(
             in: .whitespacesAndNewlines
         )
