@@ -4,9 +4,9 @@ import Testing
 
 @MainActor let eMain = AddressComponents(
     streetNumber: "123",
-    streetName: "E Main",
+    streetName: "Main",
     streetSuffix: "St",
-    direction: "",
+    direction: "E",
     unitType: "",
     unitNumber: "",
     city: "Springfield",
@@ -16,9 +16,9 @@ import Testing
 
 @MainActor let eAllen = AddressComponents(
     streetNumber: "555",
-    streetName: "E Allen",
+    streetName: "Allen",
     streetSuffix: "St",
-    direction: "",
+    direction: "E",
     unitType: "Apt",
     unitNumber: "7",
     city: "Boise",
@@ -33,15 +33,15 @@ import Testing
     direction: "",
     unitType: "PO Box",
     unitNumber: "279",
-    city: "Staley",
+    city: "Stanley",
     state: "NC",
-    zipcode: "27355"
+    zipcode: "27345"
 )
 
 @MainActor let broadstone = AddressComponents(
     streetNumber: "3504",
     streetName: "Broadstone Village",
-    streetSuffix: "Dr",
+    streetSuffix: "Pkwy",
     direction: "",
     unitType: "",
     unitNumber: "",
@@ -64,9 +64,9 @@ import Testing
 
 @MainActor let wendover = AddressComponents(
     streetNumber: "1703",
-    streetName: "E Wendover",
+    streetName: "Wendover",
     streetSuffix: "Ave",
-    direction: "",
+    direction: "E",
     unitType: "",
     unitNumber: "",
     city: "Greensboro",
@@ -132,6 +132,22 @@ import Testing
     printAndTest(broadstone)
 }
 
+@MainActor @Test func pasrseBraodstoneParkway() {
+    let expected = AddressComponents(
+        streetNumber: "3504",
+        streetName: "Broadstone Village",
+        streetSuffix: "Pkwy",
+        direction: "",
+        unitType: "",
+        unitNumber: "",
+        city: "High Point",
+        state: "NC",
+        zipcode: "27260"
+    )
+    
+    testFromString("3504 Broadstone Village Parkway, High Point, NC 27260", expected)
+}
+
 @MainActor @Test func parseWay() {
     printAndTest(way)
 }
@@ -149,7 +165,7 @@ import Testing
 }
 
 @MainActor func printAndTest(_ address: AddressComponents) {
-    let parsed = printAndTest(address.toString())
+    let parsed = printAndTestString(address.toString())
     
     #expect(address.streetNumber == parsed.streetNumber)
     #expect(address.streetName == parsed.streetName)
@@ -162,9 +178,11 @@ import Testing
     #expect(address.zipcode == parsed.zipcode)
     
     #expect(address == parsed)
+    
+    #expect(address.toString() == parsed.toString())
 }
 
-@MainActor func printAndTest(_ address: String) -> AddressComponents {
+@MainActor func printAndTestString(_ address: String) -> AddressComponents {
     print("Original: \(address)")
     
     let parsed = AddressParser.parseAddress(address)
@@ -181,10 +199,16 @@ import Testing
     print("  Parsed:      \(parsed.toString())")
     print("")
     
-    #expect(address == parsed.toString())
-    
-    
     return parsed
+}
+
+@MainActor func testFromString(_ address: String, _ expected: AddressComponents) {
+    let parsed = printAndTestString(address)
+    
+    #expect(parsed == expected)
+    
+    #expect(parsed.toString() == expected.toString())
+    
 }
 
 // BREAK THE STRING INTO LARGER COMPONENTS FIRST

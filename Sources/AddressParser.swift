@@ -496,23 +496,31 @@ public class AddressParser {
     // PO Box & Unit regex
     private static let poBoxRegex = #"(?<unitType>P.?O.?\s+Box)"#
     private static let unitTypeRegex = #"(?<unitType>[A-Za-z]+)"#
-    private static let unitNumberRegex = #"(?<unitNumber>-?\w{1,5}?)"#
-    private static let combineUnitRegex = #"(?:\s+\#(unitTypeRegex)\s+\#(unitNumberRegex),)?"#
+    private static let unitNumberRegex = #"(?<unitNumber>-?\w{1,5})?"#
+    private static let combinedUnitRegex = #"(\#(unitTypeRegex)\#(optSpaceRegex)\#(unitNumberRegex),)?"#
     
     // Street Regex
     private static let streetNumberRegex = #"(?<streetNumber>\d+-?\w)"#
     private static let streetNameRegex = #"(?<streetName>[A-Za-z\s]+)"#
-    private static let streetSuffixRegex = #"(?<streetSuffix>\w+\s?\w?)"#
+    private static let streetSuffixRegex = #"(?<streetSuffix>\w+\s*\w?)"#
     
     // Directional Regex
-    private static let leadingDirectionRegex = #"(?<leadingDir>\#(directionalPatternRegex)?)"#
-    private static let trailingDirectionRegex = #"(?<trailingDir>\#(directionalPatternRegex)?)"#
+    private static let leadingDirectionRegex = #"(?<leadingDir>\#(directionalPatternRegex))?"#
+    private static let trailingDirectionRegex = #"(?<trailingDir>\#(directionalPatternRegex))?"#
     
     // City, State, Zip Regex
-    private static let cityRegex = #"(?<city>[A-Za-z\s]+){1,5}"#
-    private static let stateRegex = #"(?<state>[A-Za-z\s]{2})"#
+    private static let cityRegex = #"(?<city>[A-Za-z\s+]+){1,5}"#
+    private static let stateRegex = #"(?<state>[A-Za-z]{2})"#
     private static let zipcodeRegex = #"(?<zip>\d{5})"#
-    private static let zipExtensionCodeRegex = #"[-(?<zip>\d{4}?)]?"#
+    private static let zipExtensionRegex = #"\#(dashRegex)(?<zipExtension>\d{4}?)?"#
+    
+    // Non-Capturing Regex
+    private static let whitespaceRegex = #"(?:[\s]*)"#
+    private static let spaceRegex = #"(?:[\s]+)"#
+    private static let optSpaceRegex = #"(?:[\s]+)"#
+    private static let commaRegex = #"(?:,[\s]*)"#
+    private static let periodRegex = #"(?:\.)?"#
+    private static let dashRegex = #"(?:-)?"#
 
     // List of patterns to attempt to parse address with
     @MainActor private static var addressRegexList: [NSRegularExpression] = {
@@ -521,7 +529,7 @@ public class AddressParser {
         // 1) PO Box style: "PO Box 279 Staley, NC 27355"
         // Captures city, state, zip after the box.
         let poBoxPattern =
-        #"^\#(poBoxRegex)\s+\#(unitNumberRegex),\s\#(cityRegex),\s+\#(stateRegex)\s+\#(zipcodeRegex)\#(zipExtensionCodeRegex)$"#
+        #"^\#(whitespaceRegex)\#(poBoxRegex)\#(spaceRegex)\#(unitNumberRegex)\#(commaRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
         print(poBoxPattern + "\n")
         if let poBoxRegex = try? NSRegularExpression(
             pattern: poBoxPattern,
@@ -530,19 +538,10 @@ public class AddressParser {
             list.append(poBoxRegex)
         }
 
-        // 2) Simple street address with no directionals or units
-        let simpleStPattern =
-        #"^\#(streetNumberRegex)\s+\#(streetNameRegex)\s+\#(streetSuffixRegex),\s+\#(cityRegex),\s+\#(stateRegex)\s+\#(zipcodeRegex)\#(zipExtensionCodeRegex)$"#
-        if let simpleStRegex = try? NSRegularExpression(
-            pattern: simpleStPattern,
-            options: [.allowCommentsAndWhitespace, .caseInsensitive]
-        ) {
-            list.append(simpleStRegex)
-        }
-
-        // 3) Street address with optional unit and trailing directional: 555 E Allen St E, Boise, ID 83709
+        // 2) Street address with optional unit and trailing directional: 555 Allen St E, Boise, ID 83709.
+        // Standardized toString() method moves trailing directionals to leading directional.
         let altStreetPattern =
-        #"^\#(streetNumberRegex)\s+\#(streetNameRegex)\s+\#(streetSuffixRegex),\s+\#(trailingDirectionRegex),(?:\s+\#(unitTypeRegex)\s*\#(unitNumberRegex))?,?\s+\#(cityRegex),\s+\#(stateRegex)\s+\#(zipcodeRegex)\#(zipExtensionCodeRegex)$"#
+        #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(trailingDirectionRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
         print(altStreetPattern + "\n")
         if let altStreetRegex = try? NSRegularExpression(
             pattern: altStreetPattern,
@@ -554,13 +553,23 @@ public class AddressParser {
         // 3) Street address with optional unit: "3605 Maldon Way, Apt 25, High Point, NC 27260"
         // This pattern tries to handle direction, suffix, and an optional unit.
         let streetPattern =
-            #"^(?<streetNumber>\d+[-?\s?\w])\s+(?<streetName>[A-Za-z\s]+){1,8}\s+(?<streetSuffix>\w+\s?\w?)(?<trailingDir>[\#(directionalPatternRegex)]?),(?:\s+(?<unitType>[A-Za-z]+)\s*(?<unitNumber>\w+))?,?\s+(?<city>[A-Za-z\s]+),\s+(?<state>[A-Z]{2})\s+(?<zip>\d{5})$"#
+        #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(leadingDirectionRegex)\#(optSpaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
         print(streetPattern + "\n")
         if let streetRegex = try? NSRegularExpression(
             pattern: streetPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
         ) {
             list.append(streetRegex)
+        }
+        
+        // 4) Simple street address with no directionals or units
+        let simpleStPattern =
+        #"^\#(whitespaceRegex)\#(streetNumberRegex)\s+\#(streetNameRegex)\s+\#(streetSuffixRegex),\s+\#(cityRegex),\s+\#(stateRegex)\s+\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
+        if let simpleStRegex = try? NSRegularExpression(
+            pattern: simpleStPattern,
+            options: [.allowCommentsAndWhitespace, .caseInsensitive]
+        ) {
+            list.append(simpleStRegex)
         }
 
         return list
@@ -599,49 +608,30 @@ public class AddressParser {
             else {
                 return ""
             }
+            print(regex.pattern)
             return String(address[range])
         }
 
         let rawStreetNumber = capture("streetNumber")
         let leadingDir = capture("leadingDir").uppercased()
-        let rawStreetName = capture("streetName")
-        let rawSuffix = capture("streetSuffix")
+        let rawStreetName = capture("streetName").capitalized
+        let rawSuffix = capture("streetSuffix").uppercased()
         let trailingDir = capture("trailingDir").uppercased()
 
         let rawUnitType = capture("unitType").uppercased()
         let unitNumber = capture("unitNumber")
 
-        let rawCity = capture("city")
+        let rawCity = capture("city").capitalized
         let rawState = capture("state").uppercased()
-        let zipCode = capture("zip")
+        let zipcode = capture("zip")
 
-        // Distinguish if it's a PO Box
-        if !rawUnitType.isEmpty && rawUnitType == "PO BOX" {
-            let unitType = capture("unitType").capitalized
-            let boxCity = capture("city")
-            let rawState = capture("state").uppercased()
-            let normalizedState = statePatterns[rawState] ?? rawState
-            let zipCode = capture("zip")
-
-            return AddressComponents(
-                streetNumber: "",
-                streetName: "",
-                streetSuffix: "",
-                direction: "",
-                unitType: unitType == "Po Box" ? "PO Box" : unitType,
-                unitNumber: unitNumber,
-                city: boxCity.trimmingCharacters(in: .whitespacesAndNewlines),
-                state: normalizedState,
-                zipcode: zipCode
-            )
-        }
 
         // Normalize fields:
         let directionPart = [leadingDir, trailingDir].filter { !$0.isEmpty }
             .joined(separator: " ")
-        let direction = directionPatterns[directionPart] ?? directionPart
+        let direction = directionPatterns[directionPart.uppercased()]?.capitalized ?? directionPart
 
-        let streetSuffix = streetSuffixPatterns[rawSuffix] ?? rawSuffix
+        let streetSuffix = streetSuffixPatterns[rawSuffix.uppercased()]?.capitalized ?? rawSuffix.capitalized
 
         var unitType = ""
         if !rawUnitType.isEmpty {
@@ -659,8 +649,25 @@ public class AddressParser {
                     match.value.capitalized
             }
         }
+            
+        let normalizedState = statePatterns[rawState.uppercased()] ?? rawState
 
-        let normalizedState = statePatterns[rawState] ?? rawState
+        // Distinguish if it's a PO Box
+        if !rawUnitType.isEmpty && rawUnitType == "PO BOX" {
+            let unitType = capture("unitType").capitalized
+            
+            return AddressComponents(
+                streetNumber: "",
+                streetName: "",
+                streetSuffix: "",
+                direction: "",
+                unitType: unitType == "Po Box" ? "PO Box" : unitType.capitalized,
+                unitNumber: unitNumber,
+                city: rawCity.trimmingCharacters(in: .whitespacesAndNewlines),
+                state: normalizedState,
+                zipcode: zipcode
+            )
+        }
 
         return AddressComponents(
             streetNumber: rawStreetNumber,
@@ -669,13 +676,14 @@ public class AddressParser {
             streetSuffix: streetSuffix,
             direction: direction.trimmingCharacters(
                 in: .whitespacesAndNewlines),
-            unitType: unitType.trimmingCharacters(in: .whitespacesAndNewlines),
+            unitType: unitType
+                .trimmingCharacters(in: .whitespacesAndNewlines).capitalized,
             unitNumber:
                 unitNumber
                 .trimmingCharacters(in: .whitespacesAndNewlines),
             city: rawCity.trimmingCharacters(in: .whitespacesAndNewlines),
             state: normalizedState,
-            zipcode: zipCode
+            zipcode: zipcode
         )
     }
 }
