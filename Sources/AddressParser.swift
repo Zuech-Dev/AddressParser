@@ -530,7 +530,7 @@ public class AddressParser {
         // Captures city, state, zip after the box.
         let poBoxPattern =
         #"^\#(whitespaceRegex)\#(poBoxRegex)\#(spaceRegex)\#(unitNumberRegex)\#(commaRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
-        print(poBoxPattern + "\n")
+        
         if let poBoxRegex = try? NSRegularExpression(
             pattern: poBoxPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive])
@@ -542,7 +542,7 @@ public class AddressParser {
         // Standardized toString() method moves trailing directionals to leading directional.
         let altStreetPattern =
         #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(trailingDirectionRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
-        print(altStreetPattern + "\n")
+        
         if let altStreetRegex = try? NSRegularExpression(
             pattern: altStreetPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
@@ -554,7 +554,7 @@ public class AddressParser {
         // This pattern tries to handle direction, suffix, and an optional unit.
         let streetPattern =
         #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(leadingDirectionRegex)\#(optSpaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
-        print(streetPattern + "\n")
+        
         if let streetRegex = try? NSRegularExpression(
             pattern: streetPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
@@ -565,6 +565,7 @@ public class AddressParser {
         // 4) Simple street address with no directionals or units
         let simpleStPattern =
         #"^\#(whitespaceRegex)\#(streetNumberRegex)\s+\#(streetNameRegex)\s+\#(streetSuffixRegex),\s+\#(cityRegex),\s+\#(stateRegex)\s+\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
+        
         if let simpleStRegex = try? NSRegularExpression(
             pattern: simpleStPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
@@ -608,7 +609,6 @@ public class AddressParser {
             else {
                 return ""
             }
-            print(regex.pattern)
             return String(address[range])
         }
 

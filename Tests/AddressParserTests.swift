@@ -9,7 +9,7 @@ import Testing
     direction: "E",
     unitType: "",
     unitNumber: "",
-    city: "Springfield",
+    city: "Franklin",
     state: "NY",
     zipcode: "12345"
 )
@@ -21,7 +21,7 @@ import Testing
     direction: "E",
     unitType: "Apt",
     unitNumber: "7",
-    city: "Boise",
+    city: "Huntington",
     state: "ID",
     zipcode: "83709"
 )
@@ -34,12 +34,12 @@ import Testing
     unitType: "PO Box",
     unitNumber: "279",
     city: "Stanley",
-    state: "NC",
-    zipcode: "27345"
+    state: "AZ",
+    zipcode: "52074"
 )
 
 @MainActor let broadstone = AddressComponents(
-    streetNumber: "3504",
+    streetNumber: "909",
     streetName: "Broadstone Village",
     streetSuffix: "Pkwy",
     direction: "",
@@ -57,14 +57,14 @@ import Testing
     direction: "",
     unitType: "",
     unitNumber: "",
-    city: "High Point",
-    state: "NC",
-    zipcode: "27260"
+    city: "Seattle",
+    state: "WA",
+    zipcode: "98105"
 )
 
-@MainActor let wendover = AddressComponents(
-    streetNumber: "1703",
-    streetName: "Wendover",
+@MainActor let ave = AddressComponents(
+    streetNumber: "123",
+    streetName: "Andover",
     streetSuffix: "Ave",
     direction: "E",
     unitType: "",
@@ -105,7 +105,7 @@ import Testing
     poBox,
     broadstone,
     way,
-    wendover,
+    ave,
     mlk,
 ]
 
@@ -153,7 +153,7 @@ import Testing
 }
 
 @MainActor @Test func parseWendover() {
-    printAndTest(wendover)
+    printAndTest(ave)
 }
 
 @MainActor @Test func parseMlk() {

@@ -15,6 +15,7 @@ It does NOT validate that an address exists. Other services should be used for t
 AddressParser uses regular expressions to break-down a full address like `"88 Colin P Kelly Jr St, San Franciso, CA 94107"` into address components. The current tests cover very limited addresses, but I plan to expand the coverage for other address formats. Currently, I'm working on US address formats with the intention of expanding to international formats if there is enough interest. 
 
 ```
+
 let parsed = AddressParser.parseAddress("88 Colin P Kelly Jr St, San Franciso, CA 94107")
 
 // Do what you wish with the address components here...
