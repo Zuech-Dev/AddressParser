@@ -525,11 +525,12 @@ public class AddressParser {
     private static let commaRegex = #"(?:,[\s]*)"#
     private static let periodRegex = #"(?:\.)?"#
     private static let dashRegex = #"(?:-)?"#
+    
 
     // List of patterns to attempt to parse address with
-    private static var addressRegexList: [NSRegularExpression] = {
-        var list: [NSRegularExpression] = []
-
+    private static let addressRegexList: [NSRegularExpression] = {
+        var regexList: [NSRegularExpression] = []
+        
         // 1) PO Box style: "PO Box 279 Staley, NC 27355"
         // Captures city, state, zip after the box.
         let poBoxPattern =
@@ -539,7 +540,7 @@ public class AddressParser {
             pattern: poBoxPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive])
         {
-            list.append(poBoxRegex)
+            regexList.append(poBoxRegex)
         }
 
         // 2) Street address with optional unit and trailing directional: 555 Allen St E, Boise, ID 83709.
@@ -551,7 +552,7 @@ public class AddressParser {
             pattern: altStreetPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
         ) {
-            list.append(altStreetRegex)
+            regexList.append(altStreetRegex)
         }
 
         // 3) Street address with optional unit: "3605 Maldon Way, Apt 25, High Point, NC 27260"
@@ -563,7 +564,7 @@ public class AddressParser {
             pattern: streetPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
         ) {
-            list.append(streetRegex)
+            regexList.append(streetRegex)
         }
 
         // 4) Simple street address with no directionals or units
@@ -574,15 +575,15 @@ public class AddressParser {
             pattern: simpleStPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
         ) {
-            list.append(simpleStRegex)
+            regexList.append(simpleStRegex)
         }
 
-        return list
+        return regexList
     }()
 
-    public func addCustomRegex(_ regex: NSRegularExpression) {
-        AddressParser.addressRegexList.append(regex)
-    }
+//    public func addCustomRegex(_ regex: NSRegularExpression) {
+//        AddressParser.regexList.append(regex)
+//    }
 
     public static func parseAddress(_ address: String)
         -> AddressComponents
