@@ -2,7 +2,7 @@ import Testing
 
 @testable import AddressParser
 
-@MainActor let eMain = AddressComponents(
+let eMain = AddressComponents(
     streetNumber: "123",
     streetName: "Main",
     streetSuffix: "St",
@@ -14,7 +14,7 @@ import Testing
     zipcode: "12345"
 )
 
-@MainActor let eAllen = AddressComponents(
+let eAllen = AddressComponents(
     streetNumber: "555",
     streetName: "Allen",
     streetSuffix: "St",
@@ -26,7 +26,7 @@ import Testing
     zipcode: "83709"
 )
 
-@MainActor let poBox = AddressComponents(
+let poBox = AddressComponents(
     streetNumber: "",
     streetName: "",
     streetSuffix: "",
@@ -38,7 +38,7 @@ import Testing
     zipcode: "52074"
 )
 
-@MainActor let broadstone = AddressComponents(
+let broadstone = AddressComponents(
     streetNumber: "909",
     streetName: "Broadstone Village",
     streetSuffix: "Pkwy",
@@ -50,7 +50,7 @@ import Testing
     zipcode: "27260"
 )
 
-@MainActor let way = AddressComponents(
+let way = AddressComponents(
     streetNumber: "3605",
     streetName: "Maldon",
     streetSuffix: "Way",
@@ -62,7 +62,7 @@ import Testing
     zipcode: "98105"
 )
 
-@MainActor let ave = AddressComponents(
+let ave = AddressComponents(
     streetNumber: "123",
     streetName: "Andover",
     streetSuffix: "Ave",
@@ -74,7 +74,7 @@ import Testing
     zipcode: "27403"
 )
 
-@MainActor let mlk = AddressComponents(
+let mlk = AddressComponents(
     streetNumber: "2222",
     streetName: "Martin Luther King Jr",
     streetSuffix: "Dr",
@@ -87,7 +87,7 @@ import Testing
 )
 
 //88 Colin P Kelly Jr St, San Francisco, CA 94107
-@MainActor let github = AddressComponents(
+let github = AddressComponents(
     streetNumber: "88-A",
     streetName: "Colin P Kelly Jr",
     streetSuffix: "St",
@@ -99,7 +99,7 @@ import Testing
     zipcode: "94107"
 )
 
-@MainActor let addresses = [
+let addresses = [
     eMain,
     eAllen,
     poBox,
@@ -109,30 +109,30 @@ import Testing
     mlk,
 ]
 
-@MainActor @Test func parseListOfAddresses() async throws {
+@Test func parseListOfAddresses() async throws {
     // Write your test here and use APIs like `#expect(...)` to check expected conditions.
     for address in addresses {
         printAndTest(address)
     }
 }
 
-@MainActor @Test func parseeMain() {
+@Test func parseeMain() {
     printAndTest(eMain)
 }
 
-@MainActor @Test func parseeAllen() {
+@Test func parseeAllen() {
     printAndTest(eAllen)
 }
 
-@MainActor @Test func parsePoBox() {
+@Test func parsePoBox() {
     printAndTest(poBox)
 }
 
-@MainActor @Test func parseBroadstone() {
+@Test func parseBroadstone() {
     printAndTest(broadstone)
 }
 
-@MainActor @Test func pasrseBraodstoneParkway() {
+@Test func pasrseBraodstoneParkway() {
     let expected = AddressComponents(
         streetNumber: "3504",
         streetName: "Broadstone Village",
@@ -148,23 +148,23 @@ import Testing
     testFromString("3504 Broadstone Village Parkway, High Point, NC 27260", expected)
 }
 
-@MainActor @Test func parseWay() {
+@Test func parseWay() {
     printAndTest(way)
 }
 
-@MainActor @Test func parseWendover() {
+@Test func parseWendover() {
     printAndTest(ave)
 }
 
-@MainActor @Test func parseMlk() {
+@Test func parseMlk() {
     printAndTest(mlk)
 }
 
-@MainActor @Test func parseGithub() {
+@Test func parseGithub() {
     printAndTest(github)
 }
 
-@MainActor func printAndTest(_ address: AddressComponents) {
+func printAndTest(_ address: AddressComponents) {
     let parsed = printAndTestString(address.toString())
     
     #expect(address.streetNumber == parsed.streetNumber)
@@ -182,7 +182,7 @@ import Testing
     #expect(address.toString() == parsed.toString())
 }
 
-@MainActor func printAndTestString(_ address: String) -> AddressComponents {
+func printAndTestString(_ address: String) -> AddressComponents {
     print("Original: \(address)")
     
     let parsed = AddressParser.parseAddress(address)
@@ -202,7 +202,7 @@ import Testing
     return parsed
 }
 
-@MainActor func testFromString(_ address: String, _ expected: AddressComponents) {
+func testFromString(_ address: String, _ expected: AddressComponents) {
     let parsed = printAndTestString(address)
     
     #expect(parsed == expected)

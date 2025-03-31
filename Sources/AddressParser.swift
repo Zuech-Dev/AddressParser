@@ -492,28 +492,32 @@ public class AddressParser {
             + values.joined(separator: "|")
         return pattern
     }()
-    
+
     // PO Box & Unit regex
     private static let poBoxRegex = #"(?<unitType>P.?O.?\s+Box)"#
     private static let unitTypeRegex = #"(?<unitType>[A-Za-z]+)"#
     private static let unitNumberRegex = #"(?<unitNumber>-?\w{1,5})?"#
-    private static let combinedUnitRegex = #"(\#(unitTypeRegex)\#(optSpaceRegex)\#(unitNumberRegex),)?"#
-    
+    private static let combinedUnitRegex =
+        #"(\#(unitTypeRegex)\#(optSpaceRegex)\#(unitNumberRegex),)?"#
+
     // Street Regex
     private static let streetNumberRegex = #"(?<streetNumber>\d+-?\w)"#
     private static let streetNameRegex = #"(?<streetName>[A-Za-z\s]+)"#
     private static let streetSuffixRegex = #"(?<streetSuffix>\w+\s*\w?)"#
-    
+
     // Directional Regex
-    private static let leadingDirectionRegex = #"(?<leadingDir>\#(directionalPatternRegex))?"#
-    private static let trailingDirectionRegex = #"(?<trailingDir>\#(directionalPatternRegex))?"#
-    
+    private static let leadingDirectionRegex =
+        #"(?<leadingDir>\#(directionalPatternRegex))?"#
+    private static let trailingDirectionRegex =
+        #"(?<trailingDir>\#(directionalPatternRegex))?"#
+
     // City, State, Zip Regex
     private static let cityRegex = #"(?<city>[A-Za-z\s+]+){1,5}"#
     private static let stateRegex = #"(?<state>[A-Za-z]{2})"#
     private static let zipcodeRegex = #"(?<zip>\d{5})"#
-    private static let zipExtensionRegex = #"\#(dashRegex)(?<zipExtension>\d{4}?)?"#
-    
+    private static let zipExtensionRegex =
+        #"\#(dashRegex)(?<zipExtension>\d{4}?)?"#
+
     // Non-Capturing Regex
     private static let whitespaceRegex = #"(?:[\s]*)"#
     private static let spaceRegex = #"(?:[\s]+)"#
@@ -523,14 +527,14 @@ public class AddressParser {
     private static let dashRegex = #"(?:-)?"#
 
     // List of patterns to attempt to parse address with
-    @MainActor private static var addressRegexList: [NSRegularExpression] = {
+    private static var addressRegexList: [NSRegularExpression] = {
         var list: [NSRegularExpression] = []
 
         // 1) PO Box style: "PO Box 279 Staley, NC 27355"
         // Captures city, state, zip after the box.
         let poBoxPattern =
-        #"^\#(whitespaceRegex)\#(poBoxRegex)\#(spaceRegex)\#(unitNumberRegex)\#(commaRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
-        
+            #"^\#(whitespaceRegex)\#(poBoxRegex)\#(spaceRegex)\#(unitNumberRegex)\#(commaRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
+
         if let poBoxRegex = try? NSRegularExpression(
             pattern: poBoxPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive])
@@ -541,8 +545,8 @@ public class AddressParser {
         // 2) Street address with optional unit and trailing directional: 555 Allen St E, Boise, ID 83709.
         // Standardized toString() method moves trailing directionals to leading directional.
         let altStreetPattern =
-        #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(trailingDirectionRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
-        
+            #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(trailingDirectionRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
+
         if let altStreetRegex = try? NSRegularExpression(
             pattern: altStreetPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
@@ -553,19 +557,19 @@ public class AddressParser {
         // 3) Street address with optional unit: "3605 Maldon Way, Apt 25, High Point, NC 27260"
         // This pattern tries to handle direction, suffix, and an optional unit.
         let streetPattern =
-        #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(leadingDirectionRegex)\#(optSpaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
-        
+            #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(leadingDirectionRegex)\#(optSpaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
+
         if let streetRegex = try? NSRegularExpression(
             pattern: streetPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
         ) {
             list.append(streetRegex)
         }
-        
+
         // 4) Simple street address with no directionals or units
         let simpleStPattern =
-        #"^\#(whitespaceRegex)\#(streetNumberRegex)\s+\#(streetNameRegex)\s+\#(streetSuffixRegex),\s+\#(cityRegex),\s+\#(stateRegex)\s+\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
-        
+            #"^\#(whitespaceRegex)\#(streetNumberRegex)\s+\#(streetNameRegex)\s+\#(streetSuffixRegex),\s+\#(cityRegex),\s+\#(stateRegex)\s+\#(zipcodeRegex)\#(zipExtensionRegex)\#(whitespaceRegex)$"#
+
         if let simpleStRegex = try? NSRegularExpression(
             pattern: simpleStPattern,
             options: [.allowCommentsAndWhitespace, .caseInsensitive]
@@ -576,11 +580,11 @@ public class AddressParser {
         return list
     }()
 
-    @MainActor public func addCustomRegex(_ regex: NSRegularExpression) {
+    public func addCustomRegex(_ regex: NSRegularExpression) {
         AddressParser.addressRegexList.append(regex)
     }
 
-    @MainActor public static func parseAddress(_ address: String)
+    public static func parseAddress(_ address: String)
         -> AddressComponents
     {
         for regex in addressRegexList {
@@ -601,45 +605,39 @@ public class AddressParser {
         in address: String,
         with regex: NSRegularExpression
     ) -> AddressComponents {
-
-        func capture(_ name: String) -> String {
-            let nsRange = match.range(withName: name)
-            guard nsRange.location != NSNotFound,
-                let range = Range(nsRange, in: address)
-            else {
-                return ""
-            }
-            return String(address[range])
-        }
-
+        // Street
         let rawStreetNumber = capture("streetNumber")
-        let leadingDir = capture("leadingDir").uppercased()
         let rawStreetName = capture("streetName").capitalized
         let rawSuffix = capture("streetSuffix").uppercased()
+
+        // Directional
+        let leadingDir = capture("leadingDir").uppercased()
         let trailingDir = capture("trailingDir").uppercased()
 
+        // Unit
         let rawUnitType = capture("unitType").uppercased()
         let unitNumber = capture("unitNumber")
 
+        // Municipal
         let rawCity = capture("city").capitalized
         let rawState = capture("state").uppercased()
         let zipcode = capture("zip")
 
-
         // Normalize fields:
         let directionPart = [leadingDir, trailingDir].filter { !$0.isEmpty }
             .joined(separator: " ")
-        let direction = directionPatterns[directionPart.uppercased()]?.capitalized ?? directionPart
+        let direction =
+            directionPatterns[directionPart.uppercased()]?.capitalized
+            ?? directionPart
 
-        let streetSuffix = streetSuffixPatterns[rawSuffix.uppercased()]?.capitalized ?? rawSuffix.capitalized
+        let streetSuffix =
+            streetSuffixPatterns[rawSuffix.uppercased()]?.capitalized
+            ?? rawSuffix.capitalized
 
         var unitType = ""
         if !rawUnitType.isEmpty {
-            // Attempt dictionary lookup for rawUnitType (regex-based pattern)
-            // but with an already uppercase rawUnitType
             let found = unitTypePatterns.first {
                 let (keyRegex, _) = $0
-                // If the raw unit string matches the key regex, return the mapped value
                 return rawUnitType.range(
                     of: keyRegex, options: .regularExpression) != nil
                     ? true : false
@@ -649,10 +647,9 @@ public class AddressParser {
                     match.value.capitalized
             }
         }
-            
+
         let normalizedState = statePatterns[rawState.uppercased()] ?? rawState
 
-        // Distinguish if it's a PO Box
         if !rawUnitType.isEmpty && rawUnitType == "PO BOX" {
             let unitType = capture("unitType").capitalized
             
@@ -661,7 +658,8 @@ public class AddressParser {
                 streetName: "",
                 streetSuffix: "",
                 direction: "",
-                unitType: unitType == "Po Box" ? "PO Box" : unitType.capitalized,
+                unitType: unitType == "Po Box"
+                    ? "PO Box" : unitType.capitalized,
                 unitNumber: unitNumber,
                 city: rawCity.trimmingCharacters(in: .whitespacesAndNewlines),
                 state: normalizedState,
@@ -676,7 +674,8 @@ public class AddressParser {
             streetSuffix: streetSuffix,
             direction: direction.trimmingCharacters(
                 in: .whitespacesAndNewlines),
-            unitType: unitType
+            unitType:
+                unitType
                 .trimmingCharacters(in: .whitespacesAndNewlines).capitalized,
             unitNumber:
                 unitNumber
@@ -685,5 +684,15 @@ public class AddressParser {
             state: normalizedState,
             zipcode: zipcode
         )
+
+        func capture(_ name: String) -> String {
+            let nsRange = match.range(withName: name)
+            guard nsRange.location != NSNotFound,
+                let range = Range(nsRange, in: address)
+            else {
+                return ""
+            }
+            return String(address[range])
+        }
     }
 }
