@@ -52,6 +52,29 @@ public struct AddressComponents : Equatable, Codable, Sendable {
         self.zipcode = zipcode
     }
 
+    public func getStreetAddress() -> String {
+        return "\(streetNumber) \(direction.isEmpty ? "" : "\(direction) ")\(streetName) \(streetSuffix)".trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+    }
+    
+    public func getSecondaryAddress() -> String {
+        return "\(unitType) \(unitNumber)".trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+    }
+    
+    public func getFullStreetAddress() -> String {
+        return "\(getStreetAddress())\(getSecondaryAddress().isEmpty ? "" : ", \(getSecondaryAddress())")"
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    public func getMunicipal() -> String {
+        "\(city), \(state) \(zipcode)".trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+    }
+    
     public func toString() -> String {
         let streetAddress = "\(streetNumber) \(direction.isEmpty ? "" : "\(direction) ")\(streetName) \(streetSuffix)".trimmingCharacters(
             in: .whitespacesAndNewlines

@@ -99,6 +99,18 @@ let github = AddressComponents(
     zipcode: "94107"
 )
 
+let lexington = AddressComponents(
+    streetNumber: "124",
+    streetName: "Forest Hill",
+    streetSuffix: "Rd",
+    direction: "",
+    unitType: "",
+    unitNumber: "",
+    city: "Lexington",
+    state: "NC",
+    zipcode: "27295"
+)
+
 let addresses = [
     eMain,
     eAllen,
@@ -132,7 +144,7 @@ let addresses = [
     printAndTest(broadstone)
 }
 
-@Test func pasrseBraodstoneParkway() {
+@Test func parseBraodstoneParkway() {
     let expected = AddressComponents(
         streetNumber: "3504",
         streetName: "Broadstone Village",
@@ -162,6 +174,25 @@ let addresses = [
 
 @Test func parseGithub() {
     printAndTest(github)
+}
+
+@Test func testStreet() {
+    let parsed = AddressParser.parseAddress(github.toString())
+    
+    let st = "\(github.streetNumber) \(github.streetName) \(github.streetSuffix)"
+    
+    #expect(st == parsed.getStreetAddress())
+    
+    #expect(
+        "\(github.unitType) \(github.unitNumber)".trimmingCharacters(
+            in: .whitespacesAndNewlines
+        ) ==
+        parsed.getSecondaryAddress()
+    )
+    
+    #expect(st == parsed.getFullStreetAddress())
+    
+    #expect("\(github.city), \(github.state) \(github.zipcode)" == parsed.getMunicipal())
 }
 
 func printAndTest(_ address: AddressComponents) {
