@@ -17,6 +17,8 @@ public struct AddressComponents : Equatable, Codable, Sendable {
     public var city: String
     public var state: String
     public var zipcode: String
+    public var zipcodeExtension: String
+    public var country: String
     
     public init() {
         self.streetNumber = ""
@@ -28,6 +30,8 @@ public struct AddressComponents : Equatable, Codable, Sendable {
         self.city = ""
         self.state = ""
         self.zipcode = ""
+        self.zipcodeExtension = ""
+        self.country = ""
     }
 
     public init(
@@ -39,7 +43,9 @@ public struct AddressComponents : Equatable, Codable, Sendable {
         unitNumber: String,
         city: String,
         state: String,
-        zipcode: String
+        zipcode: String,
+        zipcodeExtension: String = "",
+        country: String = ""
     ) {
         self.streetNumber = streetNumber
         self.streetName = streetName
@@ -50,6 +56,8 @@ public struct AddressComponents : Equatable, Codable, Sendable {
         self.city = city
         self.state = state
         self.zipcode = zipcode
+        self.zipcodeExtension = zipcodeExtension
+        self.country = country
     }
 
     public func getStreetAddress() -> String {

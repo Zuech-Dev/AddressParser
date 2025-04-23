@@ -154,10 +154,12 @@ let addresses = [
         unitNumber: "",
         city: "High Point",
         state: "NC",
-        zipcode: "27260"
+        zipcode: "27260",
+        zipcodeExtension: "",
+        country: "USA"
     )
     
-    testFromString("3504 Broadstone Village Parkway, High Point, NC 27260", expected)
+    testFromString("3504 Broadstone Village Parkway, High Point, NC 27260, USA", expected)
 }
 
 @Test func parseWay() {
