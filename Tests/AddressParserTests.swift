@@ -54,11 +54,11 @@ let way = AddressComponents(
     streetNumber: "3605",
     streetName: "Maldon",
     streetSuffix: "Way",
-    direction: "",
-    unitType: "",
-    unitNumber: "",
-    city: "Seattle",
-    state: "WA",
+    direction: "N",
+    unitType: "Unit",
+    unitNumber: "2-C",
+    city: "High Point",
+    state: "NC",
     zipcode: "98105"
 )
 
@@ -81,7 +81,7 @@ let mlk = AddressComponents(
     direction: "",
     unitType: "",
     unitNumber: "",
-    city: "Chapel Hill",
+    city: "Chapel-Hill",
     state: "NC",
     zipcode: "27278"
 )
@@ -198,6 +198,7 @@ let addresses = [
 }
 
 func printAndTest(_ address: AddressComponents) {
+    let addressString = address.toString()
     let parsed = printAndTestString(address.toString())
     
     #expect(address.streetNumber == parsed.streetNumber)

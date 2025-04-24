@@ -496,7 +496,7 @@ public class AddressParser {
     // PO Box & Unit regex
     private static let poBoxRegex = #"(?<unitType>P.?O.?\s+Box)"#
     private static let unitTypeRegex = #"(?<unitType>[A-Za-z]+)"#
-    private static let unitNumberRegex = #"(?<unitNumber>-?\w{1,5})?"#
+    private static let unitNumberRegex = #"(?<unitNumber>(?:\w+\-?){0,4})?"#
     private static let combinedUnitRegex =
         #"(\#(unitTypeRegex)\#(optSpaceRegex)\#(unitNumberRegex),)?"#
 
@@ -524,11 +524,11 @@ public class AddressParser {
     // Non-Capturing Regex
     private static let whitespaceRegex = #"(?:[\s]*)"#
     private static let spaceRegex = #"(?:[\s]+)"#
-    private static let optSpaceRegex = #"(?:[\s]+)"#
+    private static let optSpaceRegex = #"(?:[\s]*)"#
     private static let commaRegex = #"(?:,[\s]*)"#
     private static let optCommaRegex = #"(?:,?[\s]*)"#
     private static let periodRegex = #"(?:\.)?"#
-    private static let dashRegex = #"(?:-)?"#
+    private static let dashRegex = #"(?:\-)?"#
     
 
     // List of patterns to attempt to parse address with
@@ -598,6 +598,7 @@ public class AddressParser {
             if let match = regex.firstMatch(
                 in: address, options: [], range: range)
             {
+                print(regex)
                 return extractComponents(from: match, in: address, with: regex)
             }
             continue
