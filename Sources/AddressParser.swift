@@ -538,7 +538,7 @@ public class AddressParser {
         // 1) PO Box style: "PO Box 279 Staley, NC 27355"
         // Captures city, state, zip after the box.
         let poBoxPattern =
-            #"^\#(whitespaceRegex)\#(poBoxRegex)\#(spaceRegex)\#(unitNumberRegex)\#(commaRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#
+            #"^\#(whitespaceRegex)\#(poBoxRegex)\#(spaceRegex)\#(unitNumberRegex)\#(commaRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optCommaRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#
 
         if let poBoxRegex = try? NSRegularExpression(
             pattern: poBoxPattern,
@@ -550,7 +550,7 @@ public class AddressParser {
         // 2) Street address with optional unit and trailing directional: 555 Allen St E, Boise, ID 83709.
         // Standardized toString() method moves trailing directionals to leading directional.
         let altStreetPattern =
-            #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(trailingDirectionRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#
+            #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(trailingDirectionRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optCommaRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#
 
         if let altStreetRegex = try? NSRegularExpression(
             pattern: altStreetPattern,
@@ -562,7 +562,7 @@ public class AddressParser {
         // 3) Street address with optional unit: "3605 Maldon Way, Apt 25, High Point, NC 27260"
         // This pattern tries to handle direction, suffix, and an optional unit.
         let streetPattern =
-            #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(leadingDirectionRegex)\#(optSpaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optSpaceRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#
+            #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(leadingDirectionRegex)\#(optSpaceRegex)\#(streetNameRegex)\#(spaceRegex)\#(streetSuffixRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optCommaRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#
 
         if let streetRegex = try? NSRegularExpression(
             pattern: streetPattern,

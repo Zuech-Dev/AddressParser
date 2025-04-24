@@ -159,7 +159,7 @@ let addresses = [
         country: "USA"
     )
     
-    testFromString("3504 Broadstone Village Parkway, High Point, NC 27260, USA", expected)
+    testFromString("3504 Broadstone Village Parkway, High Point, NC, 27260, USA", expected)
 }
 
 @Test func parseWay() {
