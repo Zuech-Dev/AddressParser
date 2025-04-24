@@ -512,7 +512,7 @@ public class AddressParser {
         #"(?<trailingDir>\#(directionalPatternRegex))?"#
 
     // City, State, Zip Regex
-    private static let cityRegex = #"(?<city>[A-Za-z\s+]+){1,5}"#
+    private static let cityRegex = #"(?<city>[A-Za-z\-?\s*]+){1,5}"#
     private static let stateRegex = #"(?<state>[A-Za-z]{2})"#
     private static let zipcodeRegex = #"(?<zip>\d{5})"#
     private static let zipExtensionRegex =

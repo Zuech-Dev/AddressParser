@@ -21,7 +21,7 @@ let eAllen = AddressComponents(
     direction: "E",
     unitType: "Apt",
     unitNumber: "7",
-    city: "Huntington",
+    city: "Winston-Salem",
     state: "ID",
     zipcode: "83709"
 )
