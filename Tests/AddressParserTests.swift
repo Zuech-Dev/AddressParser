@@ -52,7 +52,7 @@ let broadstone = AddressComponents(
 
 let way = AddressComponents(
     streetNumber: "3605",
-    streetName: "Maldon",
+    streetName: "Waldon",
     streetSuffix: "Way",
     direction: "N",
     unitType: "Unit",
@@ -149,7 +149,7 @@ let addresses = [
         streetNumber: "3504",
         streetName: "Broadstone Village",
         streetSuffix: "Pkwy",
-        direction: "",
+        direction: "N",
         unitType: "",
         unitNumber: "",
         city: "High Point",
@@ -159,7 +159,7 @@ let addresses = [
         country: "USA"
     )
     
-    testFromString("3504 Broadstone Village Parkway, High Point, NC, 27260, USA", expected)
+    testFromString("3504 N Broadstone Village Parkway, High Point, NC, 27260, USA", expected)
 }
 
 @Test func parseWay() {

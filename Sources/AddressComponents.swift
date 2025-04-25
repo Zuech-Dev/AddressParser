@@ -107,3 +107,9 @@ public struct AddressComponents : Equatable, Codable, Sendable {
         return ""
     }
 }
+
+// Helper Methods to create
+// isEmpty - if no properties are set
+// isComplete - regex was able to account for all characters into regex, even if some properties are still empty (the majority of cases)
+// toString with formatting options, defaulting to US standard
+

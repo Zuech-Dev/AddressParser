@@ -506,10 +506,9 @@ public class AddressParser {
     private static let streetSuffixRegex = #"(?<streetSuffix>\w+\s*\w?)"#
 
     // Directional Regex
-    private static let leadingDirectionRegex =
-        #"(?<leadingDir>\#(directionalPatternRegex))?"#
+    private static let leadingDirectionRegex = #"(?:\s*(?<leadingDir>SOUTH\-?\s?WEST|NORTH\-?\s?WEST|NORTH\-?\s?EAST|SOUTH\-?\s?EAST|SOUTH|NORTH|EAST|WEST|SW|NW|NE|SE|S|N|E|W)\s+)?(?:[\s]*)?"#
     private static let trailingDirectionRegex =
-        #"(?<trailingDir>\#(directionalPatternRegex))?"#
+    #"(?:\s+(?<trailingDir>SOUTH\-?\s?WEST|NORTH\-?\s?WEST|NORTH\-?\s?EAST|SOUTH\-?\s?EAST|SOUTH|NORTH|EAST|WEST|SW|NW|NE|SE|S|N|E|W)\s+)?(?:[\s]*)?"#
 
     // City, State, Zip Regex
     private static let cityRegex = #"(?<city>[A-Za-z\-?\s*]+){1,5}"#
@@ -710,3 +709,14 @@ public class AddressParser {
         }
     }
 }
+
+
+// Create a method for breaking into larger parts rather than individually.
+// 1. Break into full st, municipal
+// 2a. full st into primary and secondary
+// 2b. primary into st num, st, directional
+// 2c. st into name and suffix
+// 2d. secondary into unit and number
+// 3a. municipal into city, state, zip, country
+// 4. assign all found pieces to the components
+// 5. return any founds components instead of an empty components when it fails.
