@@ -162,6 +162,24 @@ let addresses = [
     testFromString("3504 N Broadstone Village Parkway, High Point, NC, 27260, USA", expected)
 }
 
+@Test func parseUglyPo() {
+    let expected = AddressComponents(
+        streetNumber: "",
+        streetName: "",
+        streetSuffix: "",
+        direction: "",
+        unitType: "PO Box",
+        unitNumber: "222",
+        city: "Gibsonville",
+        state: "NC",
+        zipcode: "27349",
+        zipcodeExtension: "",
+        country: ""
+        )
+    
+    testFromString("po box 222 , gibsonville , nc , 27349", expected)
+}
+
 @Test func parseWay() {
     printAndTest(way)
 }

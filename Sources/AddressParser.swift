@@ -524,8 +524,8 @@ public class AddressParser {
     private static let whitespaceRegex = #"(?:[\s]*)"#
     private static let spaceRegex = #"(?:[\s]+)"#
     private static let optSpaceRegex = #"(?:[\s]*)"#
-    private static let commaRegex = #"(?:,[\s]*)"#
-    private static let optCommaRegex = #"(?:,?[\s]*)"#
+    private static let commaRegex = #"(?:[\s]*[,][\s]*)"#
+    private static let optCommaRegex = #"(?:[\s]*[,]?[\s]*)"#
     private static let periodRegex = #"(?:\.)?"#
     private static let dashRegex = #"(?:\-)?"#
     
