@@ -502,8 +502,8 @@ public class AddressParser {
 
     // Street Regex
     private static let streetNumberRegex = #"(?<streetNumber>\d+-?\w)"#
-    private static let streetNameRegex = #"(?<streetName>[A-Za-z\s]+)"#
-    private static let streetSuffixRegex = #"(?<streetSuffix>\w+\s*\w?)"#
+    private static let streetNameRegex = #"(?<streetName>[\w\s]+)"#
+    private static let streetSuffixRegex = #"(?<streetSuffix>\w+\s*\w?)?"#
 
     // Directional Regex
     private static let leadingDirectionRegex = #"(?:\s*(?<leadingDir>SOUTH\-?\s?WEST|NORTH\-?\s?WEST|NORTH\-?\s?EAST|SOUTH\-?\s?EAST|SOUTH|NORTH|EAST|WEST|SW|NW|NE|SE|S|N|E|W)\s+)?(?:[\s]*)?"#
@@ -513,7 +513,7 @@ public class AddressParser {
     // City, State, Zip Regex
     private static let cityRegex = #"(?<city>[A-Za-z\-?\s*]+){1,5}"#
     private static let stateRegex = #"(?<state>[A-Za-z]{2})"#
-    private static let zipcodeRegex = #"(?<zip>\d{5})"#
+    private static let zipcodeRegex = #"(?<zip>\d{5})?"#
     private static let zipExtensionRegex =
         #"\#(dashRegex)(?<zipExtension>\d{4}?)?"#
     
@@ -612,7 +612,7 @@ public class AddressParser {
     ) -> AddressComponents {
         // Street
         let rawStreetNumber = capture("streetNumber")
-        let rawStreetName = capture("streetName").capitalized
+        let rawStreetName = capture("streetName").uppercased()
         let rawSuffix = capture("streetSuffix").uppercased()
 
         // Directional
@@ -624,7 +624,7 @@ public class AddressParser {
         let unitNumber = capture("unitNumber")
 
         // Municipal
-        let rawCity = capture("city").capitalized
+        let rawCity = capture("city").uppercased()
         let rawState = capture("state").uppercased()
         let zipcode = capture("zip")
         let zipcodeExtension = capture("zipExtension")
@@ -636,12 +636,12 @@ public class AddressParser {
         let directionPart = [leadingDir, trailingDir].filter { !$0.isEmpty }
             .joined(separator: " ")
         let direction =
-            directionPatterns[directionPart.uppercased()]?.capitalized
-            ?? directionPart
+            directionPatterns[directionPart.uppercased()]
+        ?? directionPart.uppercased()
 
         let streetSuffix =
-            streetSuffixPatterns[rawSuffix.uppercased()]?.capitalized
-            ?? rawSuffix.capitalized
+            streetSuffixPatterns[rawSuffix.uppercased()]
+            ?? rawSuffix.uppercased()
 
         var unitType = ""
         if !rawUnitType.isEmpty {
@@ -653,14 +653,14 @@ public class AddressParser {
             }
             if let match = found {
                 unitType =
-                    match.value.capitalized
+                    match.value.uppercased()
             }
         }
 
         let normalizedState = statePatterns[rawState.uppercased()] ?? rawState
 
         if !rawUnitType.isEmpty && rawUnitType == "PO BOX" {
-            let unitType = capture("unitType").capitalized
+            let unitType = capture("unitType").uppercased()
             
             return AddressComponents(
                 streetNumber: "",
@@ -668,7 +668,7 @@ public class AddressParser {
                 streetSuffix: "",
                 direction: "",
                 unitType: unitType == "Po Box"
-                    ? "PO Box" : unitType.capitalized,
+                ? "PO Box" : unitType.uppercased(),
                 unitNumber: unitNumber,
                 city: rawCity.trimmingCharacters(in: .whitespacesAndNewlines),
                 state: normalizedState,
@@ -687,7 +687,7 @@ public class AddressParser {
                 in: .whitespacesAndNewlines),
             unitType:
                 unitType
-                .trimmingCharacters(in: .whitespacesAndNewlines).capitalized,
+                .trimmingCharacters(in: .whitespacesAndNewlines).uppercased(),
             unitNumber:
                 unitNumber
                 .trimmingCharacters(in: .whitespacesAndNewlines),

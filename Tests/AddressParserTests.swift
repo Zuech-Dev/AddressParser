@@ -4,24 +4,24 @@ import Testing
 
 let eMain = AddressComponents(
     streetNumber: "123",
-    streetName: "Main",
-    streetSuffix: "St",
+    streetName: "MAIN",
+    streetSuffix: "ST",
     direction: "E",
     unitType: "",
     unitNumber: "",
-    city: "Franklin",
+    city: "FRANKLIN",
     state: "NY",
     zipcode: "12345"
 )
 
 let eAllen = AddressComponents(
     streetNumber: "555",
-    streetName: "Allen",
-    streetSuffix: "St",
+    streetName: "ALLEN",
+    streetSuffix: "ST",
     direction: "E",
-    unitType: "Apt",
+    unitType: "APT",
     unitNumber: "7",
-    city: "Winston-Salem",
+    city: "WINSTON-SALEM",
     state: "ID",
     zipcode: "83709"
 )
@@ -31,57 +31,57 @@ let poBox = AddressComponents(
     streetName: "",
     streetSuffix: "",
     direction: "",
-    unitType: "PO Box",
+    unitType: "PO BOX",
     unitNumber: "279",
-    city: "Stanley",
+    city: "STANLEY",
     state: "AZ",
     zipcode: "52074"
 )
 
 let broadstone = AddressComponents(
     streetNumber: "909",
-    streetName: "Broadstone Village",
-    streetSuffix: "Pkwy",
+    streetName: "BROADSTONE VILLAGE",
+    streetSuffix: "PKWY",
     direction: "",
     unitType: "",
     unitNumber: "",
-    city: "High Point",
+    city: "HIGH POINT",
     state: "NC",
     zipcode: "27260"
 )
 
 let way = AddressComponents(
     streetNumber: "3605",
-    streetName: "Waldon",
-    streetSuffix: "Way",
+    streetName: "WALDON",
+    streetSuffix: "WAY",
     direction: "N",
-    unitType: "Unit",
+    unitType: "UNIT",
     unitNumber: "2-C",
-    city: "High Point",
+    city: "HIGH POINT",
     state: "NC",
     zipcode: "98105"
 )
 
 let ave = AddressComponents(
     streetNumber: "123",
-    streetName: "Andover",
-    streetSuffix: "Ave",
+    streetName: "ANDOVER",
+    streetSuffix: "AVE",
     direction: "E",
     unitType: "",
     unitNumber: "",
-    city: "Greensboro",
+    city: "GREENSBORO",
     state: "NC",
     zipcode: "27403"
 )
 
 let mlk = AddressComponents(
     streetNumber: "2222",
-    streetName: "Martin Luther King Jr",
-    streetSuffix: "Dr",
+    streetName: "MARTIN LUTHER KING JR",
+    streetSuffix: "DR",
     direction: "",
     unitType: "",
     unitNumber: "",
-    city: "Chapel-Hill",
+    city: "CHAPEL HILL",
     state: "NC",
     zipcode: "27278"
 )
@@ -89,24 +89,24 @@ let mlk = AddressComponents(
 //88 Colin P Kelly Jr St, San Francisco, CA 94107
 let github = AddressComponents(
     streetNumber: "88-A",
-    streetName: "Colin P Kelly Jr",
-    streetSuffix: "St",
+    streetName: "COLIN P KELLY JR",
+    streetSuffix: "ST",
     direction: "",
     unitType: "",
     unitNumber: "",
-    city: "San Franciso",
+    city: "SAN FRANCISO",
     state: "CA",
     zipcode: "94107"
 )
 
 let lexington = AddressComponents(
     streetNumber: "124",
-    streetName: "Forest Hill",
-    streetSuffix: "Rd",
+    streetName: "FOREST HILL",
+    streetSuffix: "RD",
     direction: "",
     unitType: "",
     unitNumber: "",
-    city: "Lexington",
+    city: "LEXINGTON",
     state: "NC",
     zipcode: "27295"
 )
@@ -147,12 +147,12 @@ let addresses = [
 @Test func parseBraodstoneParkway() {
     let expected = AddressComponents(
         streetNumber: "3504",
-        streetName: "Broadstone Village",
-        streetSuffix: "Pkwy",
+        streetName: "BROADSTONE VILLAGE",
+        streetSuffix: "PKWY",
         direction: "N",
         unitType: "",
         unitNumber: "",
-        city: "High Point",
+        city: "HIGH POINT",
         state: "NC",
         zipcode: "27260",
         zipcodeExtension: "",
@@ -168,9 +168,9 @@ let addresses = [
         streetName: "",
         streetSuffix: "",
         direction: "",
-        unitType: "PO Box",
+        unitType: "PO BOX",
         unitNumber: "222",
-        city: "Gibsonville",
+        city: "GIBSONVILLE",
         state: "NC",
         zipcode: "27349",
         zipcodeExtension: "",
@@ -194,6 +194,38 @@ let addresses = [
 
 @Test func parseGithub() {
     printAndTest(github)
+}
+
+@Test func parseFake() {
+    let expected = AddressComponents(
+        streetNumber: "123",
+        streetName: "HHH",
+        streetSuffix: "H",
+        direction: "",
+        unitType: "",
+        unitNumber: "",
+        city: "HHH",
+        state: "NC",
+        zipcode: "27278"
+        )
+    
+    testFromString("123 hhh h, hhh, NC 27278", expected)
+}
+
+@Test func ParseStNameNum() {
+    let expected = AddressComponents(
+        streetNumber: "123",
+        streetName: "2ND",
+        streetSuffix: "ST",
+        direction: "W",
+        unitType: "",
+        unitNumber: "",
+        city: "WINSTON-SALEM",
+        state: "NC",
+        zipcode: "27123"
+        )
+    
+    testFromString("123 w 2nd st, winston-salem, nc, 27123", expected)
 }
 
 @Test func testStreet() {
