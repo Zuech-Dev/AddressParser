@@ -597,7 +597,6 @@ public class AddressParser {
             if let match = regex.firstMatch(
                 in: address, options: [], range: range)
             {
-                print(regex)
                 return extractComponents(from: match, in: address, with: regex)
             }
             continue
