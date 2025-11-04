@@ -476,7 +476,7 @@ public class AddressParser {
             .sorted { $0.count > $1.count }
         let pattern =
             keys.joined(separator: "|") + "|"
-            + values.joined(separator: "|")
+                + values.joined(separator: "|")
         return pattern
     }()
 
@@ -489,7 +489,7 @@ public class AddressParser {
             .sorted { $0.count > $1.count }
         let pattern =
             keys.joined(separator: "|") + "|"
-            + values.joined(separator: "|")
+                + values.joined(separator: "|")
         return pattern
     }()
 
@@ -501,14 +501,14 @@ public class AddressParser {
         #"(\#(unitTypeRegex)\#(optSpaceRegex)\#(unitNumberRegex),)?"#
 
     // Street Regex
-    private static let streetNumberRegex = #"(?<streetNumber>\d+-?\w)"#
-    private static let streetNameRegex = #"(?<streetName>[\w\s]+)"#
-    private static let streetSuffixRegex = #"(?<streetSuffix>\w+\s*\w?)?"#
+    private static let streetNumberRegex = #"(?<streetNumber>\d+-?\w?)"#
+    private static let streetNameRegex = #"(?<streetName>[A-Za-z\s]+)"#
+    private static let streetSuffixRegex = #"(?<streetSuffix>\w+\s*\w?)"#
 
     // Directional Regex
     private static let leadingDirectionRegex = #"(?:\s*(?<leadingDir>SOUTH\-?\s?WEST|NORTH\-?\s?WEST|NORTH\-?\s?EAST|SOUTH\-?\s?EAST|SOUTH|NORTH|EAST|WEST|SW|NW|NE|SE|S|N|E|W)\s+)?(?:[\s]*)?"#
     private static let trailingDirectionRegex =
-    #"(?:\s+(?<trailingDir>SOUTH\-?\s?WEST|NORTH\-?\s?WEST|NORTH\-?\s?EAST|SOUTH\-?\s?EAST|SOUTH|NORTH|EAST|WEST|SW|NW|NE|SE|S|N|E|W)\s+)?(?:[\s]*)?"#
+        #"(?:\s+(?<trailingDir>SOUTH\-?\s?WEST|NORTH\-?\s?WEST|NORTH\-?\s?EAST|SOUTH\-?\s?EAST|SOUTH|NORTH|EAST|WEST|SW|NW|NE|SE|S|N|E|W)\s+)?(?:[\s]*)?"#
 
     // City, State, Zip Regex
     private static let cityRegex = #"(?<city>[A-Za-z\-?\s*]+){1,5}"#
@@ -516,7 +516,7 @@ public class AddressParser {
     private static let zipcodeRegex = #"(?<zip>\d{5})?"#
     private static let zipExtensionRegex =
         #"\#(dashRegex)(?<zipExtension>\d{4}?)?"#
-    
+
     // Country
     private static let countryRegex = #"(?<country>[A-Za-z\s]{0,5})"#
 
@@ -528,12 +528,11 @@ public class AddressParser {
     private static let optCommaRegex = #"(?:[\s]*[,]?[\s]*)"#
     private static let periodRegex = #"(?:\.)?"#
     private static let dashRegex = #"(?:\-)?"#
-    
 
     // List of patterns to attempt to parse address with
     private static let addressRegexList: [NSRegularExpression] = {
         var regexList: [NSRegularExpression] = []
-        
+
         // 1) PO Box style: "PO Box 279 Staley, NC 27355"
         // Captures city, state, zip after the box.
         let poBoxPattern =
@@ -541,8 +540,7 @@ public class AddressParser {
 
         if let poBoxRegex = try? NSRegularExpression(
             pattern: poBoxPattern,
-            options: [.allowCommentsAndWhitespace, .caseInsensitive])
-        {
+            options: [.allowCommentsAndWhitespace, .caseInsensitive]) {
             regexList.append(poBoxRegex)
         }
 
@@ -589,14 +587,13 @@ public class AddressParser {
 //    }
 
     public static func parseAddress(_ address: String)
-        -> AddressComponents
-    {
+        -> AddressComponents {
         for regex in addressRegexList {
             let range = NSRange(
-                address.startIndex..<address.endIndex, in: address)
+                address.startIndex ..< address.endIndex, in: address)
             if let match = regex.firstMatch(
-                in: address, options: [], range: range)
-            {
+                in: address, options: [], range: range) {
+//                print(regex)
                 return extractComponents(from: match, in: address, with: regex)
             }
             continue
@@ -627,7 +624,7 @@ public class AddressParser {
         let rawState = capture("state").uppercased()
         let zipcode = capture("zip")
         let zipcodeExtension = capture("zipExtension")
-        
+
         // Country
         let country = capture("country").uppercased()
 
@@ -688,7 +685,7 @@ public class AddressParser {
                 unitType
                 .trimmingCharacters(in: .whitespacesAndNewlines).uppercased(),
             unitNumber:
-                unitNumber
+            unitNumber
                 .trimmingCharacters(in: .whitespacesAndNewlines),
             city: rawCity.trimmingCharacters(in: .whitespacesAndNewlines),
             state: normalizedState,
@@ -700,7 +697,7 @@ public class AddressParser {
         func capture(_ name: String) -> String {
             let nsRange = match.range(withName: name)
             guard nsRange.location != NSNotFound,
-                let range = Range(nsRange, in: address)
+                  let range = Range(nsRange, in: address)
             else {
                 return ""
             }
@@ -708,7 +705,6 @@ public class AddressParser {
         }
     }
 }
-
 
 // Create a method for breaking into larger parts rather than individually.
 // 1. Break into full st, municipal
