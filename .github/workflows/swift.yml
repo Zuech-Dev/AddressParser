@@ -1,27 +1,51 @@
 # This workflow will build a Swift project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
 
-name: AddressParser - Swift
-
+name: AddressParser - Release
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-
 jobs:
-  build:
-    runs-on: macos-latest
-
+  build-linux:
+    name: Swift ${{ matrix.swift }} on Linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        swift: ["6.0", "6.1"]
+    container:
+      image: swift:${{ matrix.swift }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+      
+    - name: Get swift version
+      run: swift --version  # Fixed typo here
+    
+    - name: Build AddressParser library
+      run: swift build -v
+      
+    - name: Run tests
+      run: swift test -v
 
-    - name: Set up Swift 6.0.0
-      uses: k-arindam/setup-swift@v6.0.0
+  build-macos:
+    name: Swift ${{ matrix.swift }} on macOS
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        swift: ["6.0", "6.1"]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - uses: swift-actions/setup-swift@v2
       with:
-        swift-version: '6.0.0'
+        swift-version: ${{ matrix.swift }}
+        
+    - name: Get swift version
+      run: swift --version  # Fixed typo
     
     - name: Build AddressParser library
       run: swift build -v
