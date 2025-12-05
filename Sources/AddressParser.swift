@@ -570,7 +570,18 @@ public class AddressParser {
             regexList.append(streetRegex)
         }
 
-        // 4) Simple street address with no directionals or units
+        // 4)
+        let streetNoSuffixPattern =
+        #"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(streetNameRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optCommaRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#
+
+        if let streetNoSuffixRegex = try? NSRegularExpression(
+            pattern: streetNoSuffixPattern,
+            options: [.allowCommentsAndWhitespace, .caseInsensitive]
+        ) {
+            regexList.append(streetNoSuffixRegex)
+        }
+
+        // 5) Simple street address with no directionals or units
         let simpleStPattern =
             #"^\#(whitespaceRegex)\#(streetNumberRegex)\s+\#(streetNameRegex)\s+\#(streetSuffixRegex),\s+\#(cityRegex),\s+\#(stateRegex)\s+\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#
 
@@ -597,8 +608,10 @@ public class AddressParser {
             if let match = regex.firstMatch(
                 in: address, options: [], range: range)
             {
+
                 return extractComponents(from: match, in: address, with: regex)
             }
+            print(#"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(streetNameRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optCommaRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#)
             continue
         }
         return AddressComponents()

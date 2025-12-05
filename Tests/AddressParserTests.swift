@@ -100,9 +100,9 @@ let github = AddressComponents(
 )
 
 let lexington = AddressComponents(
-    streetNumber: "124",
-    streetName: "FOREST HILL",
-    streetSuffix: "RD",
+    streetNumber: "227",
+    streetName: "WINDLESTRAW",
+    streetSuffix: "",
     direction: "",
     unitType: "",
     unitNumber: "",
@@ -142,6 +142,10 @@ let addresses = [
 
 @Test func parseBroadstone() {
     printAndTest(broadstone)
+}
+
+@Test func parseLexington() {
+    printAndTest(lexington)
 }
 
 @Test func parseBraodstoneParkway() {
@@ -226,6 +230,12 @@ let addresses = [
         )
     
     testFromString("123 w 2nd st, winston-salem, nc, 27123", expected)
+}
+
+@Test func ParseHwy() {
+    let expected = AddressComponents(
+        streetNumber: "4075", streetName: "Old U.S.", streetSuffix: "Hwy 52", direction: "", unitType: "", unitNumber: "", city: "Lexington", state: "NC", zipcode: "27295"
+    )
 }
 
 @Test func testStreet() {
