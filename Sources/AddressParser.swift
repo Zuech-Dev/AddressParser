@@ -502,7 +502,7 @@ public class AddressParser {
 
     // Street Regex
     private static let streetNumberRegex = #"(?<streetNumber>\d+-?\w?)"#
-    private static let streetNameRegex = #"(?<streetName>[A-Za-z\s]+)"#
+    private static let streetNameRegex = #"(?<streetName>[[\d]A-Za-z\s]+)"#
     private static let streetSuffixRegex = #"(?<streetSuffix>\w+\s*\w?)"#
 
     // Directional Regex
