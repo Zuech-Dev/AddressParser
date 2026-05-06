@@ -112,7 +112,7 @@ let lexington = AddressComponents(
 )
 
 let singleDigit = AddressComponents(
-    streetNumber: "6",
+    streetNumber: "6B",
     streetName: "VERDANA",
     streetSuffix: "CT",
     direction: "",
@@ -125,7 +125,7 @@ let singleDigit = AddressComponents(
 
 @Test func parseSingleDigitStNum() {
     printAndTest(singleDigit)
-    testFromString("6 Verdana Ct, Greensboro, NC 27455", singleDigit)
+    testFromString("6B Verdana Ct, Greensboro, NC 27455", singleDigit)
 }
 
 let addresses = [
@@ -169,20 +169,20 @@ let addresses = [
 
 @Test func parseBraodstoneParkway() {
     let expected = AddressComponents(
-        streetNumber: "3504",
-        streetName: "BROADSTONE VILLAGE",
-        streetSuffix: "PKWY",
-        direction: "N",
+        streetNumber: "4615",
+        streetName: "PLEASANT GARDEN",
+        streetSuffix: "RD",
+        direction: "",
         unitType: "",
         unitNumber: "",
-        city: "HIGH POINT",
+        city: "PLEASANT GARDEN",
         state: "NC",
-        zipcode: "27260",
+        zipcode: "27313",
         zipcodeExtension: "",
-        country: "USA"
+        country: ""
     )
 
-    testFromString("3504 N Broadstone Village Parkway, High Point, NC, 27260, USA", expected)
+    testFromString("4615 Pleasant Garden Rd., Pleasant Garden, NC 27313", expected)
 }
 
 @Test func parseUglyPo() {

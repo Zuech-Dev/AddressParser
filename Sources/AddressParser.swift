@@ -599,13 +599,18 @@ public class AddressParser {
 
     public static func parseAddress(_ address: String)
         -> AddressComponents {
+            let sanitized = address.replacingOccurrences(of: ".", with: "")
         for regex in addressRegexList {
             let range = NSRange(
-                address.startIndex ..< address.endIndex, in: address)
+                sanitized.startIndex ..< sanitized.endIndex, in: sanitized)
             if let match = regex.firstMatch(
-                in: address, options: [], range: range)
+                in: sanitized, options: [], range: range)
             {
-                return extractComponents(from: match, in: address, with: regex)
+                return extractComponents(
+                    from: match,
+                    in: sanitized,
+                    with: regex
+                )
             }
             print(#"^\#(whitespaceRegex)\#(streetNumberRegex)\#(spaceRegex)\#(streetNameRegex)\#(commaRegex)\#(combinedUnitRegex)\#(cityRegex)\#(commaRegex)\#(stateRegex)\#(optCommaRegex)\#(zipcodeRegex)\#(zipExtensionRegex)\#(optCommaRegex)\#(countryRegex)\#(whitespaceRegex)$"#)
             continue
