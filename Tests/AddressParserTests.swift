@@ -235,21 +235,22 @@ let addresses = [
     testFromString("123 hhh h, hhh, NC 27278", expected)
 }
 
-//@Test func ParseStNameNum() {
-//    let expected = AddressComponents(
-//        streetNumber: "123",
-//        streetName: "2ND",
-//        streetSuffix: "ST",
-//        direction: "W",
-//        unitType: "",
-//        unitNumber: "",
-//        city: "WINSTON-SALEM",
-//        state: "NC",
-//        zipcode: "27123"
-//        )
-//    
-//    testFromString("123 w 2nd st, winston-salem, nc, 27123", expected)
-//}
+@Test func ParseStNameNum() {
+    let expected = AddressComponents(
+        streetNumber: "8216",
+        streetName: "B & G",
+        streetSuffix: "CT",
+        direction: "",
+        unitType: "",
+        unitNumber: "",
+        city: "STOKESDALE",
+        state: "NC",
+        zipcode: "27357",
+        zipcodeExtension: "8279"
+        )
+    
+    testFromString("8216 B & G Court, STOKESDALE, NC 27357-8279", expected)
+}
 
 @Test func ParseHwy() {
     let expected = AddressComponents(
