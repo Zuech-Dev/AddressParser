@@ -2,6 +2,8 @@ import Testing
 
 @testable import AddressParser
 
+// MARK: - Fixtures
+
 let eMain = AddressComponents(
     streetNumber: "123",
     streetName: "MAIN",
@@ -123,51 +125,52 @@ let singleDigit = AddressComponents(
     zipcode: "27455"
 )
 
-@Test func parseSingleDigitStNum() {
-    printAndTest(singleDigit)
-    testFromString("6B Verdana Ct, Greensboro, NC 27455", singleDigit)
+// MARK: - Round-trip Tests
+
+@Test func parseMain() {
+    testRoundTrip(eMain)
 }
 
-let addresses = [
-    eMain,
-    eAllen,
-    poBox,
-    broadstone,
-    way,
-    ave,
-    mlk,
-    lexington,
-    singleDigit
-]
-
-@Test func parseListOfAddresses() async throws {
-    // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-    for address in addresses {
-        printAndTest(address)
-    }
-}
-
-@Test func parseeMain() {
-    printAndTest(eMain)
-}
-
-@Test func parseeAllen() {
-    printAndTest(eAllen)
+@Test func parseAllen() {
+    testRoundTrip(eAllen)
 }
 
 @Test func parsePoBox() {
-    printAndTest(poBox)
+    testRoundTrip(poBox)
 }
 
 @Test func parseBroadstone() {
-    printAndTest(broadstone)
+    testRoundTrip(broadstone)
 }
+
+@Test func parseWay() {
+    testRoundTrip(way)
+}
+
+@Test func parseWendover() {
+    testRoundTrip(ave)
+}
+
+@Test func parseMlk() {
+    testRoundTrip(mlk)
+}
+
+@Test func parseGithub() {
+    testRoundTrip(github)
+}
+
+@Test func parseSingleDigitStNum() {
+    testRoundTrip(singleDigit)
+    testFromString("6B Verdana Ct, Greensboro, NC 27455", singleDigit)
+}
+
+// MARK: - String-input Tests
 
 @Test func parseLexington() {
     testFromString("606 W 2nd Ave, Lexington, NC 27295", lexington)
 }
 
-@Test func parseBraodstoneParkway() {
+@Test func parsePleasantGardenRd() {
     let expected = AddressComponents(
         streetNumber: "4615",
         streetName: "PLEASANT GARDEN",
@@ -177,11 +180,8 @@ let addresses = [
         unitNumber: "",
         city: "PLEASANT GARDEN",
         state: "NC",
-        zipcode: "27313",
-        zipcodeExtension: "",
-        country: ""
+        zipcode: "27313"
     )
-
     testFromString("4615 Pleasant Garden Rd., Pleasant Garden, NC 27313", expected)
 }
 
@@ -195,11 +195,8 @@ let addresses = [
         unitNumber: "",
         city: "WINSTON SALEM",
         state: "NC",
-        zipcode: "27105",
-        zipcodeExtension: "",
-        country: ""
+        zipcode: "27105"
     )
-
     testFromString("701 W 25 1/2 St, Winston Salem, NC 27105", expected)
 }
 
@@ -213,28 +210,9 @@ let addresses = [
         unitNumber: "222",
         city: "GIBSONVILLE",
         state: "NC",
-        zipcode: "27349",
-        zipcodeExtension: "",
-        country: ""
-        )
-    
+        zipcode: "27349"
+    )
     testFromString("po box 222 , gibsonville , nc , 27349", expected)
-}
-
-@Test func parseWay() {
-    printAndTest(way)
-}
-
-@Test func parseWendover() {
-    printAndTest(ave)
-}
-
-@Test func parseMlk() {
-    printAndTest(mlk)
-}
-
-@Test func parseGithub() {
-    printAndTest(github)
 }
 
 @Test func parseFake() {
@@ -248,12 +226,11 @@ let addresses = [
         city: "HHH",
         state: "NC",
         zipcode: "27278"
-        )
-    
+    )
     testFromString("123 hhh h, hhh, NC 27278", expected)
 }
 
-@Test func ParseStNameNum() {
+@Test func parseBAndGCourt() {
     let expected = AddressComponents(
         streetNumber: "8216",
         streetName: "B & G",
@@ -265,39 +242,29 @@ let addresses = [
         state: "NC",
         zipcode: "27357",
         zipcodeExtension: "8279"
-        )
-    
+    )
     testFromString("8216 B & G Court, STOKESDALE, NC 27357-8279", expected)
 }
 
-@Test func ParseHwy() {
-    let expected = AddressComponents(
-        streetNumber: "4075", streetName: "Old U.S.", streetSuffix: "Hwy 52", direction: "", unitType: "", unitNumber: "", city: "Lexington", state: "NC", zipcode: "27295"
-    )
-}
+// MARK: - Accessor Tests
 
-@Test func testStreet() {
+@Test func parseGithubAccessors() {
     let parsed = AddressParser.parseAddress(github.toString())
-
     let st = "\(github.streetNumber) \(github.streetName) \(github.streetSuffix)"
 
     #expect(st == parsed.getStreetAddress())
-
     #expect(
-        "\(github.unitType) \(github.unitNumber)".trimmingCharacters(
-            in: .whitespacesAndNewlines
-        ) ==
+        "\(github.unitType) \(github.unitNumber)".trimmingCharacters(in: .whitespacesAndNewlines) ==
             parsed.getSecondaryAddress()
     )
-
     #expect(st == parsed.getFullStreetAddress())
-
     #expect("\(github.city), \(github.state) \(github.zipcode)" == parsed.getMunicipal())
 }
 
-func printAndTest(_ address: AddressComponents) {
-    let addressString = address.toString()
-    let parsed = printAndTestString(address.toString())
+// MARK: - Helpers
+
+func testRoundTrip(_ address: AddressComponents) {
+    let parsed = AddressParser.parseAddress(address.toString())
 
     #expect(address.streetNumber == parsed.streetNumber)
     #expect(address.streetName == parsed.streetName)
@@ -308,57 +275,12 @@ func printAndTest(_ address: AddressComponents) {
     #expect(address.city == parsed.city)
     #expect(address.state == parsed.state)
     #expect(address.zipcode == parsed.zipcode)
-
     #expect(address == parsed)
-
     #expect(address.toString() == parsed.toString())
 }
 
-func printAndTestString(_ address: String) -> AddressComponents {
-    print("Original: \(address)")
-
-    let parsed = AddressParser.parseAddress(address)
-
-    print("  Number:      \(parsed.streetNumber)")
-    print("  Name:        \(parsed.streetName)")
-    print("  Suffix:      \(parsed.streetSuffix)")
-    print("  Direction:   \(parsed.direction)")
-    print("  Unit Type:   \(parsed.unitType)")
-    print("  Unit Number: \(parsed.unitNumber)")
-    print("  City:        \(parsed.city)")
-    print("  State:       \(parsed.state)")
-    print("  Zipcode:     \(parsed.zipcode)")
-    print("  Parsed:      \(parsed.toString())")
-    print("")
-
-    return parsed
-}
-
 func testFromString(_ address: String, _ expected: AddressComponents) {
-    let parsed = printAndTestString(address)
-
+    let parsed = AddressParser.parseAddress(address)
     #expect(parsed == expected)
-
     #expect(parsed.toString() == expected.toString())
 }
-
-// BREAK THE STRING INTO LARGER COMPONENTS FIRST
-// STEP 1 - IDENTIFY FULL STREET ADDRESS, CITY, STATE, ZIP
-// STEP 2 - BREAK FULL STREET ADDRESS INTO PRIMARY AND SECONDARY STREET ADDRESSESs
-// STEP 3 -
-// if full street matches known patterns:
-//      <number> <streetName> <suffix>                                  123 Carr Rd
-//      <number>-<unit> <streetName> <suffix>                           123-A Carr Rd
-//      <poUnit> <number>                                               PO Box 123
-//      <number> <suffix> <number>                                      123 Highway 70
-//      <number> <streetName> <postDir> <suffix>                        1703 Wendover E Ave
-//      <number> <streetName> <suffix> <postDir>                        1703 Wendover Ave E
-//      <number> <preDir> <streetName> <suffix>                         1703 E Wendover Ave
-//   SECONDARY
-//      <number> <streetName> <suffix> <unitType> <unitId>              123 Carr Rd Unit 1
-//      <number>-<unit> <streetName> <suffix> <unitType> <unitId>       123-A Carr Rd Unit A3
-//      <poUnit> <number> <unitType> <unitId>                           PO Box 123 Unit 1
-//      <number> <suffix> <number> <unitType> <unitId>                  123 Highway 70 Suite F1
-//      <number> <streetName> <postDir> <suffix> <unitType> <unitId>    1703 Wendover E Ave Apt 5
-//      <number> <streetName> <suffix> <postDir> <unitType> <unitId>    1703 Wendover Ave E Building 1
-//      <number> <preDir> <streetName> <suffix> <unitType> <unitId>     1703 E Wendover Ave Basement

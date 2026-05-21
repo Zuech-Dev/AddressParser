@@ -21,7 +21,7 @@ enum Patterns {
     // MARK: - Street
 
     static let streetNumber = #"(?<streetNumber>\d+-?\w?)"#
-    static let streetName = #"(?<streetName>[[\d]\w(&)\s]+)"#
+    static let streetName = #"(?<streetName>[[\d]\w(&)\s\/\\]+)"#
     static let streetSuffix = #"(?<streetSuffix>\w+\s*\w?)"#
 
     // MARK: - Directional
