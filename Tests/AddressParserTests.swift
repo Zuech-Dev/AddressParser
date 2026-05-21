@@ -88,7 +88,6 @@ let mlk = AddressComponents(
     zipcode: "27278"
 )
 
-// 88 Colin P Kelly Jr St, San Francisco, CA 94107
 let github = AddressComponents(
     streetNumber: "88-A",
     streetName: "COLIN P KELLY JR",
