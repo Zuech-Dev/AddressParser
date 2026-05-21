@@ -185,6 +185,24 @@ let addresses = [
     testFromString("4615 Pleasant Garden Rd., Pleasant Garden, NC 27313", expected)
 }
 
+@Test func parseHalfStreet() {
+    let expected = AddressComponents(
+        streetNumber: "701",
+        streetName: "25 1/2",
+        streetSuffix: "ST",
+        direction: "W",
+        unitType: "",
+        unitNumber: "",
+        city: "WINSTON SALEM",
+        state: "NC",
+        zipcode: "27105",
+        zipcodeExtension: "",
+        country: ""
+    )
+
+    testFromString("701 W 25 1/2 St, Winston Salem, NC 27105", expected)
+}
+
 @Test func parseUglyPo() {
     let expected = AddressComponents(
         streetNumber: "",
