@@ -129,6 +129,7 @@ let singleDigit = AddressComponents(
 
 @Test func parseMain() {
     testRoundTrip(eMain)
+    testFromString("123 e Main St, Franklin, NY 12345", eMain)
 }
 
 @Test func parseAllen() {
@@ -164,25 +165,363 @@ let singleDigit = AddressComponents(
     testFromString("6B Verdana Ct, Greensboro, NC 27455", singleDigit)
 }
 
-// MARK: - String-input Tests
+// MARK: - PO Box
+
+@Test func parseLargePoBox() {
+    testFromString(
+        "PO BOX 1234, New York, NY 10001",
+        addr(unitType: "PO BOX", unitNumber: "1234", city: "NEW YORK", state: "NY", zipcode: "10001")
+    )
+}
+
+@Test func parsePoBoxWithPeriods() {
+    testFromString("P.O. Box 279, Stanley, AZ 52074", poBox)
+}
+
+@Test func parsePoBoxLowercase() {
+    testFromString(
+        "po box 222 , gibsonville , nc , 27349",
+        addr(unitType: "PO BOX", unitNumber: "222", city: "GIBSONVILLE", state: "NC", zipcode: "27349")
+    )
+}
+
+@Test func parsePoBoxHyphenatedCity() {
+    testFromString(
+        "PO Box 55, Winston-Salem, NC 27101",
+        addr(unitType: "PO BOX", unitNumber: "55", city: "WINSTON-SALEM", state: "NC", zipcode: "27101")
+    )
+}
+
+// MARK: - Leading Directionals (parameterized)
+//
+// Inputs with a leading direction word/abbreviation.
+// The parser normalizes all full words (North, Northeast…) to USPS 1-2 letter codes.
+
+let leadingDirectionalInputs = [
+    "123 N Main St, Franklin, NY 12345",
+    "123 S Main St, Franklin, NY 12345",
+    "123 E Main St, Franklin, NY 12345",
+    "123 W Main St, Franklin, NY 12345",
+    "123 NE Main St, Franklin, NY 12345",
+    "123 SE Main St, Franklin, NY 12345",
+    "123 SW Main St, Franklin, NY 12345",
+    "123 NW Main St, Franklin, NY 12345",
+    "123 North Main St, Franklin, NY 12345",
+    "123 South Main St, Franklin, NY 12345",
+    "123 East Main St, Franklin, NY 12345",
+    "123 West Main St, Franklin, NY 12345",
+    "123 Northeast Main St, Franklin, NY 12345",
+    "123 Southeast Main St, Franklin, NY 12345",
+    "123 Southwest Main St, Franklin, NY 12345",
+    "123 Northwest Main St, Franklin, NY 12345",
+]
+let leadingDirectionalExpected = ["N", "S", "E", "W", "NE", "SE", "SW", "NW",
+                                   "N", "S", "E", "W", "NE", "SE", "SW", "NW"]
+
+@Test(arguments: zip(leadingDirectionalInputs, leadingDirectionalExpected))
+func parseLeadingDirectional(input: String, expectedDir: String) {
+    let parsed = AddressParser.parseAddress(input)
+    #expect(parsed.streetNumber == "123")
+    #expect(parsed.streetName == "MAIN")
+    #expect(parsed.streetSuffix == "ST")
+    #expect(parsed.direction == expectedDir)
+    #expect(parsed.city == "FRANKLIN")
+    #expect(parsed.state == "NY")
+    #expect(parsed.zipcode == "12345")
+}
+
+// MARK: - Trailing Directionals (parameterized)
+//
+// When the direction follows the suffix with only a comma as separator
+// (e.g. "123 Main St E, City, ST 12345"), the parser folds it into the
+// street name + suffix fields rather than the direction field. The direction
+// field will be empty and the token appears as the streetSuffix.
+// toString() therefore produces "123 MAIN ST E, …" (stable round-trip).
+
+let trailingDirectionalInputs = [
+    "123 Main St N, Franklin, NY 12345",
+    "123 Main St S, Franklin, NY 12345",
+    "123 Main St E, Franklin, NY 12345",
+    "123 Main St W, Franklin, NY 12345",
+    "123 Main St NE, Franklin, NY 12345",
+    "123 Main St SE, Franklin, NY 12345",
+    "123 Main St SW, Franklin, NY 12345",
+    "123 Main St NW, Franklin, NY 12345",
+]
+let trailingDirectionalSuffixes = ["N", "S", "E", "W", "NE", "SE", "SW", "NW"]
+
+@Test(arguments: zip(trailingDirectionalInputs, trailingDirectionalSuffixes))
+func parseTrailingDirectional(input: String, expectedSuffix: String) {
+    let parsed = AddressParser.parseAddress(input)
+    #expect(parsed.streetNumber == "123")
+    #expect(parsed.streetName == "MAIN ST")
+    #expect(parsed.streetSuffix == expectedSuffix)
+    #expect(parsed.direction == "")
+    #expect(parsed.city == "FRANKLIN")
+}
+
+// MARK: - Street Suffix Normalization (parameterized)
+//
+// Full English words must normalize to USPS abbreviations.
+
+let suffixInputs = [
+    "123 Main Street, Franklin, NY 12345",
+    "123 Main Avenue, Franklin, NY 12345",
+    "123 Main Boulevard, Franklin, NY 12345",
+    "123 Main Drive, Franklin, NY 12345",
+    "123 Main Road, Franklin, NY 12345",
+    "123 Main Court, Franklin, NY 12345",
+    "123 Main Lane, Franklin, NY 12345",
+    "123 Main Place, Franklin, NY 12345",
+    "123 Main Circle, Franklin, NY 12345",
+    "123 Main Parkway, Franklin, NY 12345",
+    "123 Main Trail, Franklin, NY 12345",
+    "123 Main Highway, Franklin, NY 12345",
+    "123 Main Turnpike, Franklin, NY 12345",
+    "123 Main Freeway, Franklin, NY 12345",
+    "123 Main Expressway, Franklin, NY 12345",
+]
+let suffixExpected = [
+    "ST", "AVE", "BLVD", "DR", "RD", "CT", "LN", "PL", "CIR", "PKWY",
+    "TRL", "HWY", "TPKE", "FWY", "EXPY",
+]
+
+@Test(arguments: zip(suffixInputs, suffixExpected))
+func parseSuffixNormalization(input: String, expectedSuffix: String) {
+    let parsed = AddressParser.parseAddress(input)
+    #expect(parsed.streetName == "MAIN")
+    #expect(parsed.streetSuffix == expectedSuffix)
+    #expect(parsed.city == "FRANKLIN")
+}
+
+// MARK: - Unit Type Normalization (parameterized)
+//
+// Unit types normalize through a regex-key lookup table that handles
+// common misspellings. Types without a unit number (Basement, Front,
+// Rear, etc.) produce an empty unitNumber.
+
+let unitTypeInputs = [
+    "123 Main St, Apt 4, Franklin, NY 12345",
+    "123 Main St, Apartment 4, Franklin, NY 12345",
+    "123 Main St, Ste 100, Franklin, NY 12345",
+    "123 Main St, Suite 100, Franklin, NY 12345",
+    "123 Main St, Unit 2B, Franklin, NY 12345",
+    "123 Main St, Bldg A, Franklin, NY 12345",
+    "123 Main St, Building A, Franklin, NY 12345",
+    "123 Main St, Fl 3, Franklin, NY 12345",
+    "123 Main St, Floor 3, Franklin, NY 12345",
+    "123 Main St, Rm 201, Franklin, NY 12345",
+    "123 Main St, Room 201, Franklin, NY 12345",
+    "123 Main St, Lot 7, Franklin, NY 12345",
+    "123 Main St, Space 12, Franklin, NY 12345",
+    "123 Main St, Stop 5, Franklin, NY 12345",
+    "123 Main St, Pier 4, Franklin, NY 12345",
+    "123 Main St, Slip 3, Franklin, NY 12345",
+    "123 Main St, Ph 3, Franklin, NY 12345",
+    "123 Main St, Penthouse 3, Franklin, NY 12345",
+    "123 Main St, Trlr 5, Franklin, NY 12345",
+    "123 Main St, Trailer 5, Franklin, NY 12345",
+    "123 Main St, Hangar 4, Franklin, NY 12345",
+    "123 Main St, Key 12, Franklin, NY 12345",
+    "123 Main St, Dept 3, Franklin, NY 12345",
+    "123 Main St, Department 3, Franklin, NY 12345",
+    "123 Main St, Office 4, Franklin, NY 12345",
+    "123 Main St, Box 5, Franklin, NY 12345",
+    "123 Main St, Basement, Franklin, NY 12345",
+    "123 Main St, Front, Franklin, NY 12345",
+    "123 Main St, Rear, Franklin, NY 12345",
+    "123 Main St, Side, Franklin, NY 12345",
+    "123 Main St, Lobby, Franklin, NY 12345",
+    "123 Main St, Upper, Franklin, NY 12345",
+    "123 Main St, Lower, Franklin, NY 12345",
+]
+let unitTypeExpected = [
+    "APT", "APT", "STE", "STE", "UNIT", "BLDG", "BLDG", "FL", "FL",
+    "RM", "RM", "LOT", "SPACE", "STOP", "PIER", "SLIP", "PH", "PH",
+    "TRLR", "TRLR", "HNGR", "KEY", "DEPT", "DEPT", "OFC", "BOX",
+    "BSMT", "FRNT", "REAR", "SIDE", "LBBY", "UPPR", "LOWR",
+]
+
+@Test(arguments: zip(unitTypeInputs, unitTypeExpected))
+func parseUnitTypeNormalization(input: String, expectedUnitType: String) {
+    let parsed = AddressParser.parseAddress(input)
+    #expect(parsed.streetNumber == "123")
+    #expect(parsed.streetSuffix == "ST")
+    #expect(parsed.unitType == expectedUnitType)
+    #expect(parsed.city == "FRANKLIN")
+}
+
+// MARK: - Street Number Variants
+
+@Test func parseAlphaHyphenStreetNumber() {
+    testFromString(
+        "88-A Main St, Franklin, NY 12345",
+        addr(streetNumber: "88-A", streetName: "MAIN", streetSuffix: "ST", city: "FRANKLIN", state: "NY", zipcode: "12345")
+    )
+}
+
+@Test func parseAlphaPrefixStreetNumber() {
+    testFromString(
+        "6B Verdana Ct, Greensboro, NC 27455",
+        singleDigit
+    )
+}
+
+@Test func parseFourDigitStreetNumber() {
+    testFromString(
+        "1200 Elm Ave, Raleigh, NC 27601",
+        addr(streetNumber: "1200", streetName: "ELM", streetSuffix: "AVE", city: "RALEIGH", state: "NC", zipcode: "27601")
+    )
+}
+
+// MARK: - Street Name Variants
+
+@Test func parseMultiWordStreetName() {
+    testRoundTrip(mlk)
+}
+
+@Test func parseAmpersandStreetName() {
+    testFromString(
+        "8216 B & G Court, STOKESDALE, NC 27357-8279",
+        addr(streetNumber: "8216", streetName: "B & G", streetSuffix: "CT", city: "STOKESDALE", state: "NC", zipcode: "27357", zipcodeExtension: "8279")
+    )
+}
+
+@Test func parseNumberedStreetName() {
+    testFromString("606 W 2nd Ave, Lexington, NC 27295", lexington)
+}
+
+@Test func parseJrInStreetName() {
+    testFromString(
+        "88 Colin P Kelly Jr St, San Francisco, CA 94107",
+        addr(streetNumber: "88", streetName: "COLIN P KELLY JR", streetSuffix: "ST", city: "SAN FRANCISCO", state: "CA", zipcode: "94107")
+    )
+}
+
+// MARK: - City Variants
+
+@Test func parseHyphenatedCity() {
+    testFromString(
+        "123 Main St, Winston-Salem, NC 27101",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", city: "WINSTON-SALEM", state: "NC", zipcode: "27101")
+    )
+}
+
+@Test func parseTwoWordCity() {
+    testFromString(
+        "123 Main St, High Point, NC 27260",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", city: "HIGH POINT", state: "NC", zipcode: "27260")
+    )
+}
+
+@Test func parseThreeWordCity() {
+    testFromString(
+        "123 Main St, New York, NY 10001",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", city: "NEW YORK", state: "NY", zipcode: "10001")
+    )
+}
+
+// MARK: - ZIP Code Variants
+
+@Test func parseZipPlusFour() {
+    testFromString(
+        "123 Main St, Franklin, NY 12345-6789",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", city: "FRANKLIN", state: "NY", zipcode: "12345", zipcodeExtension: "6789")
+    )
+}
+
+@Test func parseZipPlusFourWithUnit() {
+    testFromString(
+        "8216 B & G Court, STOKESDALE, NC 27357-8279",
+        addr(streetNumber: "8216", streetName: "B & G", streetSuffix: "CT", city: "STOKESDALE", state: "NC", zipcode: "27357", zipcodeExtension: "8279")
+    )
+}
+
+// MARK: - Input Normalization
+
+@Test func parseAllLowercase() {
+    testFromString(
+        "123 main st, franklin, ny 12345",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", city: "FRANKLIN", state: "NY", zipcode: "12345")
+    )
+}
+
+@Test func parseAllUppercase() {
+    testFromString(
+        "123 MAIN ST, FRANKLIN, NY 12345",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", city: "FRANKLIN", state: "NY", zipcode: "12345")
+    )
+}
+
+// Extra whitespace after commas and at boundaries is handled;
+// spaces BEFORE commas get absorbed into the preceding field (known limitation).
+@Test func parseExtraWhitespace() {
+    testFromString(
+        "  123 Main St,  Franklin,  NY  12345  ",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", city: "FRANKLIN", state: "NY", zipcode: "12345")
+    )
+}
+
+@Test func parsePeriodInSuffix() {
+    testFromString(
+        "4615 Pleasant Garden Rd., Pleasant Garden, NC 27313",
+        addr(streetNumber: "4615", streetName: "PLEASANT GARDEN", streetSuffix: "RD", city: "PLEASANT GARDEN", state: "NC", zipcode: "27313")
+    )
+}
+
+// MARK: - Combined / Composite
+
+@Test func parseLeadingDirectionalWithUnit() {
+    testFromString("3605 N Waldon Way, Unit 2-C, High Point, NC 98105", way)
+}
+
+@Test func parseTrailingDirectionalWithUnit() {
+    testFromString(
+        "555 Allen St E, Apt 7, Winston-Salem, ID 83709",
+        addr(streetNumber: "555", streetName: "ALLEN ST", streetSuffix: "E", unitType: "APT", unitNumber: "7", city: "WINSTON-SALEM", state: "ID", zipcode: "83709")
+    )
+}
+
+@Test func parseMultiWordCityWithUnit() {
+    testFromString(
+        "123 Main St, Apt 4, High Point, NC 27260",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", unitType: "APT", unitNumber: "4", city: "HIGH POINT", state: "NC", zipcode: "27260")
+    )
+}
+
+@Test func parseHyphenatedCityWithUnit() {
+    testFromString(
+        "123 Main St, Apt 4, Winston-Salem, NC 27101",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", unitType: "APT", unitNumber: "4", city: "WINSTON-SALEM", state: "NC", zipcode: "27101")
+    )
+}
+
+@Test func parseAlphanumericUnitNumber() {
+    testFromString(
+        "123 Main St, Apt 2-C, Franklin, NY 12345",
+        addr(streetNumber: "123", streetName: "MAIN", streetSuffix: "ST", unitType: "APT", unitNumber: "2-C", city: "FRANKLIN", state: "NY", zipcode: "12345")
+    )
+}
+
+@Test func parseMultiWordStreetWithDirection() {
+    testRoundTrip(mlk)
+    testFromString(
+        "2222 Martin Luther King Jr Dr, Chapel Hill, NC 27278",
+        mlk
+    )
+}
+
+// MARK: - Existing String-input Tests
 
 @Test func parseLexington() {
     testFromString("606 W 2nd Ave, Lexington, NC 27295", lexington)
 }
 
 @Test func parsePleasantGardenRd() {
-    let expected = AddressComponents(
-        streetNumber: "4615",
-        streetName: "PLEASANT GARDEN",
-        streetSuffix: "RD",
-        direction: "",
-        unitType: "",
-        unitNumber: "",
-        city: "PLEASANT GARDEN",
-        state: "NC",
-        zipcode: "27313"
+    testFromString(
+        "4615 Pleasant Garden Rd., Pleasant Garden, NC 27313",
+        addr(streetNumber: "4615", streetName: "PLEASANT GARDEN", streetSuffix: "RD", city: "PLEASANT GARDEN", state: "NC", zipcode: "27313")
     )
-    testFromString("4615 Pleasant Garden Rd., Pleasant Garden, NC 27313", expected)
 }
 
 @Test func parseHalfStreet() {
@@ -200,50 +539,18 @@ let singleDigit = AddressComponents(
     testFromString("701 W 25 1/2 St, Winston Salem, NC 27105", expected)
 }
 
-@Test func parseUglyPo() {
-    let expected = AddressComponents(
-        streetNumber: "",
-        streetName: "",
-        streetSuffix: "",
-        direction: "",
-        unitType: "PO BOX",
-        unitNumber: "222",
-        city: "GIBSONVILLE",
-        state: "NC",
-        zipcode: "27349"
-    )
-    testFromString("po box 222 , gibsonville , nc , 27349", expected)
-}
-
 @Test func parseFake() {
-    let expected = AddressComponents(
-        streetNumber: "123",
-        streetName: "HHH",
-        streetSuffix: "H",
-        direction: "",
-        unitType: "",
-        unitNumber: "",
-        city: "HHH",
-        state: "NC",
-        zipcode: "27278"
+    testFromString(
+        "123 hhh h, hhh, NC 27278",
+        addr(streetNumber: "123", streetName: "HHH", streetSuffix: "H", city: "HHH", state: "NC", zipcode: "27278")
     )
-    testFromString("123 hhh h, hhh, NC 27278", expected)
 }
 
 @Test func parseBAndGCourt() {
-    let expected = AddressComponents(
-        streetNumber: "8216",
-        streetName: "B & G",
-        streetSuffix: "CT",
-        direction: "",
-        unitType: "",
-        unitNumber: "",
-        city: "STOKESDALE",
-        state: "NC",
-        zipcode: "27357",
-        zipcodeExtension: "8279"
+    testFromString(
+        "8216 B & G Court, STOKESDALE, NC 27357-8279",
+        addr(streetNumber: "8216", streetName: "B & G", streetSuffix: "CT", city: "STOKESDALE", state: "NC", zipcode: "27357", zipcodeExtension: "8279")
     )
-    testFromString("8216 B & G Court, STOKESDALE, NC 27357-8279", expected)
 }
 
 // MARK: - Accessor Tests
@@ -262,6 +569,28 @@ let singleDigit = AddressComponents(
 }
 
 // MARK: - Helpers
+
+/// Convenience factory so inline expected values only specify the non-empty fields.
+func addr(
+    streetNumber: String = "",
+    streetName: String = "",
+    streetSuffix: String = "",
+    direction: String = "",
+    unitType: String = "",
+    unitNumber: String = "",
+    city: String = "",
+    state: String = "",
+    zipcode: String = "",
+    zipcodeExtension: String = ""
+) -> AddressComponents {
+    AddressComponents(
+        streetNumber: streetNumber, streetName: streetName,
+        streetSuffix: streetSuffix, direction: direction,
+        unitType: unitType, unitNumber: unitNumber,
+        city: city, state: state, zipcode: zipcode,
+        zipcodeExtension: zipcodeExtension
+    )
+}
 
 func testRoundTrip(_ address: AddressComponents) {
     let parsed = AddressParser.parseAddress(address.toString())
