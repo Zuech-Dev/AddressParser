@@ -7,11 +7,25 @@
 
 import Foundation
 
+/// Identifies which ordered pattern in `AddressParser` matched an input.
+/// The raw values double as stable, human-readable labels for diagnostics.
+public enum AddressPattern: String, Sendable, CaseIterable {
+    case poBox
+    case streetNoSuffixTrailingDir
+    case altStreet
+    case street
+    case streetNoSuffixLeadingDir
+    case streetNoSuffix
+    case simpleStreet
+    /// No pattern matched; `parseAddress` returns an empty `AddressComponents`.
+    case none
+}
+
 public class AddressParser {
     /// Ordered list of address-shape patterns, tried first-match-wins.
     /// More specific patterns must precede more general ones, otherwise a
     /// general pattern will swallow inputs intended for a later, stricter one.
-    private static let addressRegexList: [NSRegularExpression] = {
+    private static let addressRegexList: [(kind: AddressPattern, regex: NSRegularExpression)] = {
         let P = Patterns.self
 
         // 1) PO Box: "PO Box 279 Staley, NC 27355"
@@ -51,31 +65,41 @@ public class AddressParser {
         let simpleStPattern =
             #"^\#(P.whitespace)\#(P.streetNumber)\s+\#(P.streetName)\s+\#(P.streetSuffix),\s+\#(P.city),\s+\#(P.state)\s+\#(P.zipcode)\#(P.zipExtension)\#(P.optComma)\#(P.country)\#(P.whitespace)$"#
 
-        return [
-            poBoxPattern,
-            streetNoSuffixTrailingDirPattern,
-            altStreetPattern,
-            streetPattern,
-            streetNoSuffixLeadingDirPattern,
-            streetNoSuffixPattern,
-            simpleStPattern,
-        ].compactMap {
-            try? NSRegularExpression(
-                pattern: $0,
+        let entries: [(AddressPattern, String)] = [
+            (.poBox, poBoxPattern),
+            (.streetNoSuffixTrailingDir, streetNoSuffixTrailingDirPattern),
+            (.altStreet, altStreetPattern),
+            (.street, streetPattern),
+            (.streetNoSuffixLeadingDir, streetNoSuffixLeadingDirPattern),
+            (.streetNoSuffix, streetNoSuffixPattern),
+            (.simpleStreet, simpleStPattern),
+        ]
+
+        return entries.compactMap { kind, pattern in
+            (try? NSRegularExpression(
+                pattern: pattern,
                 options: [.allowCommentsAndWhitespace, .caseInsensitive]
-            )
+            )).map { (kind, $0) }
         }
     }()
 
     public static func parseAddress(_ address: String) -> AddressComponents {
+        parseAddressWithPattern(address).components
+    }
+
+    /// Like `parseAddress`, but also reports which ordered pattern matched.
+    /// Returns `.none` (with an empty `AddressComponents`) when nothing matches.
+    public static func parseAddressWithPattern(
+        _ address: String
+    ) -> (components: AddressComponents, pattern: AddressPattern) {
         let sanitized = address.replacingOccurrences(of: ".", with: "")
         let range = NSRange(sanitized.startIndex..<sanitized.endIndex, in: sanitized)
 
-        for regex in addressRegexList {
-            if let match = regex.firstMatch(in: sanitized, options: [], range: range) {
-                return ComponentExtractor.extract(from: match, in: sanitized)
+        for entry in addressRegexList {
+            if let match = entry.regex.firstMatch(in: sanitized, options: [], range: range) {
+                return (ComponentExtractor.extract(from: match, in: sanitized), entry.kind)
             }
         }
-        return AddressComponents()
+        return (AddressComponents(), .none)
     }
 }

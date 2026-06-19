@@ -597,6 +597,82 @@ func parseUnitTypeNormalization(input: String, expectedUnitType: String) {
     )
 }
 
+// MARK: - Single-token name + trailing directional (deliberate asymmetry)
+//
+// A single-token street name immediately followed by a directional and NO
+// suffix routes through `.streetNoSuffixTrailingDir`, so the trailing token is
+// read as the DIRECTION. Contrast with the multi-word convention above
+// (`parseTrailingDirectional`), where "123 Main St N" folds the trailing token
+// into the streetSuffix and leaves direction empty. These tests pin that
+// asymmetry so a future change can't silently flip it.
+
+let singleTokenTrailingInputs = [
+    "100 Park N, Denver, CO 80014",
+    "100 Park S, Denver, CO 80014",
+    "100 Park E, Denver, CO 80014",
+    "100 Park W, Denver, CO 80014",
+    "100 Park NE, Denver, CO 80014",
+    "100 Park SE, Denver, CO 80014",
+    "100 Park SW, Denver, CO 80014",
+    "100 Park NW, Denver, CO 80014",
+]
+let singleTokenTrailingDirs = ["N", "S", "E", "W", "NE", "SE", "SW", "NW"]
+
+@Test(arguments: zip(singleTokenTrailingInputs, singleTokenTrailingDirs))
+func parseSingleTokenTrailingDirectional(input: String, expectedDir: String) {
+    let (parsed, pattern) = AddressParser.parseAddressWithPattern(input)
+    #expect(parsed.streetNumber == "100")
+    #expect(parsed.streetName == "PARK")
+    #expect(parsed.streetSuffix == "")
+    #expect(parsed.direction == expectedDir)
+    #expect(parsed.city == "DENVER")
+    #expect(parsed.state == "CO")
+    #expect(parsed.zipcode == "80014")
+    #expect(pattern == .streetNoSuffixTrailingDir)
+}
+
+@Test func parseMultiWordTrailingDirectionalStaysSuffix() {
+    // The other side of the asymmetry: with a real suffix present ("St"), the
+    // trailing directional is folded into the suffix, NOT the direction field.
+    let (parsed, pattern) = AddressParser.parseAddressWithPattern(
+        "123 Main St N, Franklin, NY 12345"
+    )
+    #expect(parsed.streetName == "MAIN ST")
+    #expect(parsed.streetSuffix == "N")
+    #expect(parsed.direction == "")
+    #expect(pattern != .streetNoSuffixTrailingDir)
+}
+
+// MARK: - Matched-pattern reporting
+//
+// `parseAddressWithPattern` exposes which ordered rule fired. These cases lock
+// the routing for representative shapes; the verified mapping was obtained by
+// probing the parser directly.
+
+let patternInputs = [
+    "PO BOX 1234, New York, NY 10001",
+    "283 Nc-49 S, Asheboro, NC 27205",
+    "100 Park S, Denver, CO 80014",
+    "123 N Main St, Franklin, NY 12345",
+    "283 S Nc-49, Asheboro, NC 27205",
+    "283 Nc-49, Asheboro, NC 27205",
+    "",
+]
+let patternExpected: [AddressPattern] = [
+    .poBox,
+    .streetNoSuffixTrailingDir,
+    .streetNoSuffixTrailingDir,
+    .street,
+    .streetNoSuffixLeadingDir,
+    .streetNoSuffixLeadingDir,
+    .none,
+]
+
+@Test(arguments: zip(patternInputs, patternExpected))
+func parseReportsMatchedPattern(input: String, expected: AddressPattern) {
+    #expect(AddressParser.parseAddressWithPattern(input).pattern == expected)
+}
+
 // MARK: - Accessor Tests
 
 @Test func parseGithubAccessors() {
