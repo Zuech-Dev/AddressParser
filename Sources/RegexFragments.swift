@@ -21,13 +21,25 @@ enum Patterns {
     // MARK: - Street
 
     static let streetNumber = #"(?<streetNumber>\d+-?\w?)"#
-    static let streetName = #"(?<streetName>[[\d]\w(&)\s\/\\]+)"#
+    static let streetName = #"(?<streetName>[[\d]\w(&)\s\/\\\-]+)"#
     static let streetSuffix = #"(?<streetSuffix>\w+\s*\w?)"#
+
+    /// Single-token street name (no internal whitespace) — used to recognize a
+    /// highway-style name immediately followed by a trailing directional, e.g.
+    /// the "NC-49" in "283 Nc-49 S". The no-space constraint is what keeps
+    /// multi-word "Main St N" out of the trailing-directional pattern.
+    static let streetNameSingleToken = #"(?<streetName>[\w&\/\\\-]+)"#
 
     // MARK: - Directional
 
     static let leadingDirection = #"(?:\s*(?<leadingDir>SOUTH\-?\s?WEST|NORTH\-?\s?WEST|NORTH\-?\s?EAST|SOUTH\-?\s?EAST|SOUTH|NORTH|EAST|WEST|SW|NW|NE|SE|S|N|E|W)\s+)?(?:[\s]*)?"#
     static let trailingDirection = #"(?:\s+(?<trailingDir>SOUTH\-?\s?WEST|NORTH\-?\s?WEST|NORTH\-?\s?EAST|SOUTH\-?\s?EAST|SOUTH|NORTH|EAST|WEST|SW|NW|NE|SE|S|N|E|W)\s+)?(?:[\s]*)?"#
+
+    /// A required trailing directional that ends the street portion (no trailing
+    /// whitespace required — the following comma terminates it). Used by the
+    /// trailing-directional no-suffix pattern to force the token into the
+    /// direction field rather than letting it be read as a street suffix.
+    static let trailingDirectionRequired = #"\s+(?<trailingDir>SOUTH\-?\s?WEST|NORTH\-?\s?WEST|NORTH\-?\s?EAST|SOUTH\-?\s?EAST|SOUTH|NORTH|EAST|WEST|SW|NW|NE|SE|S|N|E|W)"#
 
     // MARK: - City / State / Zip / Country
 

@@ -552,6 +552,51 @@ func parseUnitTypeNormalization(input: String, expectedUnitType: String) {
     )
 }
 
+@Test func parseDashHwyWithLeadingDir()
+{
+    testFromString(
+        "283 S Nc-49, Asheboro, NC 27205",
+        addr(
+            streetNumber: "283",
+            streetName: "NC-49",
+            direction: "S",
+            city: "ASHEBORO",
+            state: "NC",
+            zipcode: "27205"
+        )
+    )
+}
+
+@Test func parseDashHwyWithTrailingDir()
+{
+    testFromString(
+        "283 Nc-49 S, Asheboro, NC 27205",
+        addr(
+            streetNumber: "283",
+            streetName: "NC-49",
+            direction: "S",
+            city: "ASHEBORO",
+            state: "NC",
+            zipcode: "27205"
+        )
+    )
+}
+
+@Test func parseDashHwy()
+{
+    testFromString(
+        "283 Nc-49, Asheboro, NC 27205",
+        addr(
+            streetNumber: "283",
+            streetName: "NC-49",
+            direction: "",
+            city: "ASHEBORO",
+            state: "NC",
+            zipcode: "27205"
+        )
+    )
+}
+
 // MARK: - Accessor Tests
 
 @Test func parseGithubAccessors() {
